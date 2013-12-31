@@ -66,7 +66,7 @@ Returns:
             {
                 "relation" : "<nature of singers relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ]
@@ -98,13 +98,13 @@ Returns:
         "id" : "<opaque internal identifier>",
         "lv_id" : "<local voices identifier>",
         "title" : "<canonical song title>",
-        "alternative_titles" : [<list of alternative song titles>],
+        "alternative_title" : [<list of alternative song titles>],
         "summary" : "<free text summary>",
         "location": [
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -123,7 +123,7 @@ Returns:
 * id - the opaque system identifier for the song; not for use by the outside world
 * lv_id - The Local Voices identifier for the song
 * title - this is the most commonly agreed-upon title for the song
-* alternative_titles - this is all of the titles of the song variants
+* alternative_title - this is all of the titles of the song variants
 * location - a list of locations relevant to the song.  Each location is a compound attribute with the lat/long and the name of the place, as well as an optional relationship the place has to the song
 * time_period - a granular date (e.g. just the year), and optionally a range using "from" and "to" (if no range, just uses "from")
 * composer - name of the composer of this song
@@ -140,7 +140,7 @@ Returns:
         "id" : "<opaque internal identifier>",
         "lv_id" : "<local voices identifier>",
         "title" : "<title of this version>",
-        "alternative_titles" : [<list of alternative titles>],
+        "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
         "singer" : "<opaque identifier of the singer>",
@@ -151,7 +151,7 @@ Returns:
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -170,7 +170,7 @@ Returns:
 * id - the opaque system identifier for the version; not for use by the outside world
 * lv_id - The Local Voices identifier for the version
 * title - this is the name of this version of the song
-* alternative_titles - any alternative titles for this version of the song
+* alternative_title - any alternative titles for this version of the song
 * language - one of English, Scots, Gaelic, Other
 * location - a list of locations relevant to the version.  Each location is a compound attribute with the lat/long and the name of the place, as well as an optional relationship the place has to the version
 * references - other numbering or classification schemes for this version (e.g. the ROUD number)
@@ -207,7 +207,7 @@ Documents held in the Song Store will have the following form:
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -228,7 +228,7 @@ Documents held in the Version Store will have the following form:
         "id" : "<opaque internal identifier>",
         "lv_id" : "<local voices identifier>",
         "title" : "<title of this version>",
-        "alternative_titles" : [<list of alternative titles>],
+        "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
         "collector" : "<free text name of collector>",
@@ -238,7 +238,7 @@ Documents held in the Version Store will have the following form:
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -273,7 +273,7 @@ Documents held in the Singer Store will have the following form:
             {
                 "relation" : "<nature of singers relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ]
@@ -337,7 +337,7 @@ Documents held in the Song2Song link table will have the following form:
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -353,7 +353,7 @@ Documents held in the Song2Song link table will have the following form:
             "lat" : "<canonical latitude for the song>",
             "lon" : "<canonical longitude for the song>",
         },
-        "alternative_titles" : [<list of alternative song titles>],
+        "alternative_title" : [<list of alternative song titles>],
         "relations" : [
             {
                 "id" : "<opaque identifier for related song>",
@@ -371,7 +371,7 @@ Documents held in the Song2Song link table will have the following form:
                 "id" : "<opaque internal identifier>",
                 "lv_id" : "<local voices identifier>",
                 "title" : "<title of this version>",
-                "alternative_titles" : [<list of alternative titles>],
+                "alternative_title" : [<list of alternative titles>],
                 "summary" : "<free text summary>",
                 "language" : [<list of languages>],
                 "collector" : "<free text name of collector>",
@@ -381,7 +381,7 @@ Documents held in the Song2Song link table will have the following form:
                     {
                         "relation" : "<nature of song's relationship to place>",
                         "lat" : "<latitude>",
-                        "long" : "<longitude>",
+                        "lon" : "<longitude>",
                         "name" : "<textual name of place>"
                     }
                 ],
@@ -415,7 +415,7 @@ Documents held in the Song2Song link table will have the following form:
                         {
                             "relation" : "<nature of singers relationship to place>",
                             "lat" : "<latitude>",
-                            "long" : "<longitude>",
+                            "lon" : "<longitude>",
                             "name" : "<textual name of place>"
                         }
                     ]
@@ -438,7 +438,7 @@ Documents held in the Song2Song link table will have the following form:
     }
 
 * canonical_location - canonical lat/long to be used for geographical queries.  These will require ES type "geo_point"
-* alternative_titles - these are computed from the version titles and alternative titles
+* alternative_title - these are computed from the version titles and alternative titles
 * relations - these are songs which are related in some way to the current song.  We just include their title and their id, for convenience in display
 * references - aggregate of reference numbers computed from the version references
 * versions - a list of all of the song versions, computed from Song2Version, with each version containing an embedded singer, computed from Singer2Version.  Note that this versions object is _almost_ identical to the individual versions objects in the Versions Index
@@ -462,7 +462,7 @@ Documents held in the Song2Song link table will have the following form:
             {
                 "relation" : "<nature of singers relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ]
@@ -484,7 +484,7 @@ Documents held in the Song2Song link table will have the following form:
                 "id" : "<opaque internal identifier>",
                 "lv_id" : "<local voices identifier>",
                 "title" : "<title of this version>",
-                "alternative_titles" : [<list of alternative titles>],
+                "alternative_title" : [<list of alternative titles>],
                 "summary" : "<free text summary>",
                 "language" : [<list of languages>],
                 "collector" : "<free text name of collector>",
@@ -494,7 +494,7 @@ Documents held in the Song2Song link table will have the following form:
                     {
                         "relation" : "<nature of song's relationship to place>",
                         "lat" : "<latitude>",
-                        "long" : "<longitude>",
+                        "lon" : "<longitude>",
                         "name" : "<textual name of place>"
                     }
                 ],
@@ -522,7 +522,7 @@ Documents held in the Song2Song link table will have the following form:
                         {
                             "relation" : "<nature of song's relationship to place>",
                             "lat" : "<latitude>",
-                            "long" : "<longitude>",
+                            "lon" : "<longitude>",
                             "name" : "<textual name of place>"
                         }
                     ],
@@ -538,7 +538,7 @@ Documents held in the Song2Song link table will have the following form:
                         "lat" : "<canonical latitude for the song>",
                         "lon" : "<canonical longitude for the song>",
                     },
-                    "alternative_titles" : [<list of alternative song titles>]
+                    "alternative_title" : [<list of alternative song titles>]
                 }
             }
         ]
@@ -549,7 +549,7 @@ Documents held in the Song2Song link table will have the following form:
 * born_date - full datestamp computed from the partial datestamp in "born" (e.g. if born says "1975", born_date says "01-01-1975")
 * died_date - full datestamp computed from the partial datestamp in "died" (e.g. if died says "1975", died_date says "01-01-1975")
 * versions - a list of all of the song versions, computed from Singer2Version, with each version containing an embedded song, computed from Song2Version.  Note that this versions object is _almost_ identical to the individual versions objects in the Versions Index
-    * Note that in the "song" field in the version object, we incorporate the canonical_location and the alternative_titles as simple computed fields.  We do not incorporate the more complex computed fields, as these are unnecessary for searching on this object.
+    * Note that in the "song" field in the version object, we incorporate the canonical_location and the alternative_title as simple computed fields.  We do not incorporate the more complex computed fields, as these are unnecessary for searching on this object.
     * Note that we also incorporate the canonical_location field in the version itself, as a simple computed field
 
 #### Versions Index
@@ -558,7 +558,7 @@ Documents held in the Song2Song link table will have the following form:
         "id" : "<opaque internal identifier>",
         "lv_id" : "<local voices identifier>",
         "title" : "<title of this version>",
-        "alternative_titles" : [<list of alternative titles>],
+        "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
         "collector" : "<free text name of collector>",
@@ -568,7 +568,7 @@ Documents held in the Song2Song link table will have the following form:
             {
                 "relation" : "<nature of song's relationship to place>",
                 "lat" : "<latitude>",
-                "long" : "<longitude>",
+                "lon" : "<longitude>",
                 "name" : "<textual name of place>"
             }
         ],
@@ -602,7 +602,7 @@ Documents held in the Song2Song link table will have the following form:
                 {
                     "relation" : "<nature of singers relationship to place>",
                     "lat" : "<latitude>",
-                    "long" : "<longitude>",
+                    "lon" : "<longitude>",
                     "name" : "<textual name of place>"
                 }
             ]
@@ -629,7 +629,7 @@ Documents held in the Song2Song link table will have the following form:
                 {
                     "relation" : "<nature of song's relationship to place>",
                     "lat" : "<latitude>",
-                    "long" : "<longitude>",
+                    "lon" : "<longitude>",
                     "name" : "<textual name of place>"
                 }
             ],
@@ -645,13 +645,13 @@ Documents held in the Song2Song link table will have the following form:
                 "lat" : "<canonical latitude for the song>",
                 "lon" : "<canonical longitude for the song>",
             },
-            "alternative_titles" : [<list of alternative song titles>]
+            "alternative_title" : [<list of alternative song titles>]
         }
     }
 
 * canonical_location - canonical lat/long to be used for geographical queries.  These will require ES type "geo_point"
 * singer - record for the singer of this version of the song. Note that we incorporate the canonical_name, canonical_location, born_date and died_date as simple computed fields
-* song - record for the song this is a version of.  Note that we incorporate the canonical_location and the alternative_titles as simple computed fields.  We do not incorporate the more complex computed fields, as these are unnecessary for searching on this object.
+* song - record for the song this is a version of.  Note that we incorporate the canonical_location and the alternative_title as simple computed fields.  We do not incorporate the more complex computed fields, as these are unnecessary for searching on this object.
 
 ### Storage Process
 
@@ -724,8 +724,8 @@ The following URL params are permitted
 
 * from_lat - upper-most latitude for search results
 * to_lat - lower-most latitude for search results
-* from_long - left-most longitude for search results
-* to_long - right-most longitude for search results
+* from_lon - left-most longitude for search results
+* to_lon - right-most longitude for search results
 * place - placename to search for
 * q - free-text query string
 * type - one or more of "singer", "song", "version" as a comma-delimitted list
