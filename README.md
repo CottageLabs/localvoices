@@ -313,8 +313,10 @@ Documents held in the Song2Song link table will have the following form:
 
     {
         "id" : "<opaque internal identifier>",
-        "song_id_1" : "<opaque identifier for the second song>",
-        "song_id_2" : "<opaque identifier for the second song>",
+        "song_ids" : [
+            "<opaque identifier for the second song>",
+            "<opaque identifier for the first song>"
+        ]
         "created_date" : "<date this relationship was created>"
     }
 

@@ -1,8 +1,10 @@
+from portality import dao
+
 class LV(object):
     def __init__(self, raw=None):
         self.data = raw if raw is not None else {}
 
-class Song(LV):
+class Song(LV, dao.SongStoreDAO):
     """
     {
         "song" : {
@@ -166,7 +168,7 @@ class Song(LV):
             self.data["songs"] = []
         self.data["songs"].append(song_id)
     
-class Version(LV):
+class Version(LV, dao.VersionStoreDAO):
     """
     {
         "version" : {
@@ -387,7 +389,7 @@ class Version(LV):
     def singer(self, singer_id):
         self.data["singer"] = singer_id
     
-class Singer(LV):
+class Singer(LV, dao.SingerStoreDAO):
     """
     {
         "singer" : {
