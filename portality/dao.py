@@ -133,6 +133,38 @@ class SongStoreDAO(LV_DAO):
         
         # now kick off all of the actions
         self.actions(conn, action_queue)
+    
+    def remove(self, host=None, port=None, index=None):
+        # can we delete?
+        song = self.data.get("song")
+        if song is None:
+            # song element must be present if only to access the id
+            raise esprit.dao.StoreException("song element must be present")
+        if "id" not in song:
+            # id element must be present in order to do delete
+            raise esprit.dao.StoreException("song element must have id in order to be deleted")
+        
+        id = song.get("id")
+        
+        # create a connection to the ES server
+        conn = self.make_es_connection(host, port, index)
+        
+        # we're going to compute all of the ES queries, and then execute them
+        # together later
+        action_queue = []
+        
+        # issue delete-by-query on the join tables
+        version_query = esprit.models.Query.term("song_id.exact", id)
+        action_queue.append({"remove" : {"index" : "song2version", "query" : version_query}})
+        
+        songs_query = esprit.models.Query.term("song_ids.exact", id)
+        action_queue.append({"remove" : {"index" : "song2song", "query" : songs_query}})
+        
+        # issue delete on the song id
+        action_queue.append({"remove" : {"index" : "song_store", "id" : id}})
+        
+        # now kick off all of the actions
+        self.actions(conn, action_queue)
         
 class VersionStoreDAO(LV_DAO):
     def save(self, host=None, port=None, index=None):
@@ -200,6 +232,38 @@ class VersionStoreDAO(LV_DAO):
         # now kick off all of the actions
         self.actions(conn, action_queue)
 
+    def remove(self, host=None, port=None, index=None):
+        # can we delete?
+        version = self.data.get("version")
+        if version is None:
+            # version element must be present if only to access the id
+            raise esprit.dao.StoreException("version element must be present")
+        if "id" not in version:
+            # id element must be present in order to do delete
+            raise esprit.dao.StoreException("version element must have id in order to be deleted")
+        
+        id = version.get("id")
+        
+        # create a connection to the ES server
+        conn = self.make_es_connection(host, port, index)
+        
+        # we're going to compute all of the ES queries, and then execute them
+        # together later
+        action_queue = []
+        
+        # issue delete-by-query on the join tables
+        song_query = esprit.models.Query.term("version_id.exact", id)
+        action_queue.append({"remove" : {"index" : "song2version", "query" : song_query}})
+        
+        singer_query = esprit.models.Query.term("version_id.exact", id)
+        action_queue.append({"remove" : {"index" : "singer2version", "query" : singer_query}})
+        
+        # issue delete on the song id
+        action_queue.append({"remove" : {"index" : "version_store", "id" : id}})
+        
+        # now kick off all of the actions
+        self.actions(conn, action_queue)
+
 class SingerStoreDAO(LV_DAO):
     def save(self, host=None, port=None, index=None):
         # can we proceed with storage?
@@ -244,6 +308,35 @@ class SingerStoreDAO(LV_DAO):
                 singer["created_date"] = esprit.util.now()
             singer["last_updated"] = esprit.util.now()
             action_queue.append({"store" : {"index" : "singer_store", "record" : singer, "id" : id}})
+        
+        # now kick off all of the actions
+        self.actions(conn, action_queue)
+
+    def remove(self, host=None, port=None, index=None):
+        # can we delete?
+        singer = self.data.get("singer")
+        if singer is None:
+            # singer element must be present if only to access the id
+            raise esprit.dao.StoreException("singer element must be present")
+        if "id" not in singer:
+            # id element must be present in order to do delete
+            raise esprit.dao.StoreException("singer element must have id in order to be deleted")
+        
+        id = singer.get("id")
+        
+        # create a connection to the ES server
+        conn = self.make_es_connection(host, port, index)
+        
+        # we're going to compute all of the ES queries, and then execute them
+        # together later
+        action_queue = []
+        
+        # issue delete-by-query on the join tables
+        versions_query = esprit.models.Query.term("singer_id.exact", id)
+        action_queue.append({"remove" : {"index" : "singer2version", "query" : versions_query}})
+        
+        # issue delete on the song id
+        action_queue.append({"remove" : {"index" : "singer_store", "id" : id}})
         
         # now kick off all of the actions
         self.actions(conn, action_queue)
