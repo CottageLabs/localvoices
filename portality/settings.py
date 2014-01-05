@@ -1,4 +1,4 @@
-import esprit
+from esprit import mappings
 
 # ========================
 # MAIN SETTINGS
@@ -65,15 +65,36 @@ MAPPINGS['account'] = {'account':MAPPINGS['record']['record']}
 MAPPINGS['pages'] = {'pages':MAPPINGS['record']['record']}
 """
 MAPPINGS = {
-    "song_store" : esprit.mappings.for_type("song_store", esprit.mappings.EXACT),
-    "version_store" : esprit.mappings.for_type("version_store", esprit.mappings.EXACT),
-    "singer_store" : esprit.mappings.for_type("singer_store", esprit.mappings.EXACT),
-    "song2song" : esprit.mappings.for_type("song2song", esprit.mappings.EXACT),
-    "song2version" : esprit.mappings.for_type("song2version", esprit.mappings.EXACT),
-    "singer2version" : esprit.mappings.for_type("singer2version", esprit.mappings.EXACT),
-    "songs" : esprit.mappings.for_type("songs", esprit.mappings.EXACT),
-    "versions" : esprit.mappings.for_type("versions", esprit.mappings.EXACT),
-    "singers" : esprit.mappings.for_type("singers", esprit.mappings.EXACT),
+    "song_store" : mappings.for_type("song_store", mappings.dynamic_templates([mappings.EXACT])),
+    "version_store" : mappings.for_type("version_store", mappings.dynamic_templates([mappings.EXACT])),
+    "singer_store" : mappings.for_type("singer_store", mappings.dynamic_templates([mappings.EXACT])),
+    "song2song" : mappings.for_type("song2song", mappings.dynamic_templates([mappings.EXACT])),
+    "song2version" : mappings.for_type("song2version", mappings.dynamic_templates([mappings.EXACT])),
+    "singer2version" : mappings.for_type("singer2version", mappings.dynamic_templates([mappings.EXACT])),
+    "song" : mappings.for_type(
+        "songs", mappings.dynamic_templates(
+            [
+                mappings.EXACT, 
+                mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
+            ]
+        )
+    ),
+    "version" : mappings.for_type(
+        "versions", mappings.dynamic_templates(
+            [
+                mappings.EXACT, 
+                mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
+            ]
+        )
+    ),
+    "singer" : mappings.for_type(
+        "singers", mappings.dynamic_templates(
+            [
+                mappings.EXACT, 
+                mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
+            ]
+        )
+    ),
 }
 
 # ========================

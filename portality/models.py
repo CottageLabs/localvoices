@@ -1,4 +1,12 @@
 from portality import dao
+from copy import deepcopy
+from datetime import datetime
+
+class ModelException(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 class LV(object):
     def __init__(self, raw=None):
@@ -334,7 +342,7 @@ class Version(LV, dao.VersionStoreDAO):
     
     def add_reference(self, type, number):
         refobj = {"type" : type, "number" : number}
-        self._append_version_property("reference", refobj)
+        self._append_version_property("references", refobj)
     
     @property
     def comments(self):
@@ -579,8 +587,180 @@ class Singer(LV, dao.SingerStoreDAO):
         if "versions" not in self.data:
             self.data["versions"] = []
         self.data["versions"].append(version_id)
+
+
+
+class LV_Index(object):
+    # relations, in order of preference of canonical
+    # FIXME: we don't know what these relationships are yet
+    location_relations = []
+
+    def canonicalise_location(self, locations):
+        loc = self._select_location(locations)
+        if loc is None: return None
+        cl = {"lat" : loc.get("lat"), "lon" : loc.get("lon")}
+        return cl
     
+    def _select_location(self, locations):
+        # if no locations then no location to select
+        if len(locations) == 0: return None
+        
+        # if exactly one location, if it meets the criteria, use it
+        if len(locations) == 1:
+            if self._validate_location(locations[0]):
+                return locations[0]
+            else:
+                return None
+        
+        # we have multiple locations, so we need to choose between them
+        # start by pulling out the relations
+        reld = {}
+        for loc in locations:
+            rel = loc.get("relation")
+            if rel is not None:
+                reld[rel] = loc
+        
+        # go through the relations in preferred order, returning the first hit which meets the criteria
+        for r in self.location_relations:
+            if r in reld:
+                if self._validate_location(reld[r]):
+                    return reld[r]
+        
+        # if we get here, just return the first one with a relationship which meets the criteria
+        for r, loc in reld.iteritems():
+            if self._validate_location(loc):
+                return loc
+        
+        # if we don't have any with relations which validate, go through all of them and return the first one which does
+        for loc in locations:
+            if self._validate_location(loc):
+                return loc
+        
+        # we have failed :(
+        return None
+        
+    def _validate_location(self, location):
+        return "lat" in location and "lon" in location
     
+    def canonicalise_name(self, name_object):
+        first = name_object.get("first", "")
+        middle = name_object.get("middle", "")
+        last = name_object.get("last", "")
+        if middle != "": first += " "
+        if last != "": middle += " "
+        name = first + middle + last
+        if name != "":
+            return name
+        return None
+    
+    def expand_date_partial(self, partial):
+        try:
+            return datetime.strptime(partial, "%Y").strftime("%Y-%m-%d")
+        except: pass
+        
+        try:
+            return datetime.strptime(partial, "%Y-%m").strftime("%Y-%m-%d")
+        except: pass
+        
+        try:
+            return datetime.strptime(partial, "%Y-%m-%d").strftime("%Y-%m-%d")
+        except: pass
+        print "fail on " + partial
+
+class SongIndex(LV_Index, dao.SongIndexDAO):
+    
+    @classmethod
+    def from_song(cls, song):
+        # make a copy of the core song object and wrap the songindex around it
+        s = song.data.get("song")
+        if s is None:
+            raise ModelException("for songindex to be made from_song, song object must contain a song!")
+        si = cls(deepcopy(s))
+        
+        # canonicalise the location
+        loc = song.location
+        if loc is not None and len(loc) > 0:
+            cl = si.canonicalise_location(loc)
+            if cl is not None:
+                si.data["canonical_location"] = cl
+        
+        # attach basic metadata about all the related songs
+        related_song_ids = song.data.get("songs")
+        if related_song_ids is not None and len(related_song_ids) > 0:
+            related_songs = song.get_all(related_song_ids)
+            relations = [{"id" : s.id, "title": s.title} for s in related_songs]
+            si.data["relations"] = relations
+        
+        # obtain all of the versions of this song
+        related_version_ids = song.data.get("versions")
+        if related_version_ids is not None and len(related_version_ids) > 0:
+            related_versions = Version().get_all(related_version_ids, links=True)
+            
+            # obtain the aggregate list of alternative titles and references from the versions
+            alt_titles = []
+            refs = []
+            ref_index = []
+            for v in related_versions:
+                # record the titles (we'll de-duplicate later)
+                alt_titles.append(v.title)
+                alt_titles += v.alternative_title
+                
+                # record all the unique references
+                for ref in v.references:
+                    canon = ref.get("type") + ":" + ref.get("number")
+                    if canon not in ref_index:
+                        ref_index.append(canon)
+                        refs.append(ref)
+            
+            # deduplicate the titles
+            alt_titles = list(set(alt_titles))
+            
+            # add the aggregate information
+            si.data["alternative_title"] = alt_titles
+            si.data["references"] = refs
+            
+            # now add each of the versions as a whole to the document, calculating their singer at the same time
+            si.data["versions"] = []
+            for v in related_versions:
+                version = v.data.get("version")
+                
+                # if the version has a location, canonicalise it
+                vloc = v.location
+                if vloc is not None and len(vloc) > 0:
+                    vl = si.canonicalise_location(vloc)
+                    if vl is not None:
+                        version["canonical_location"] = vl
+                
+                # if the version has a singer, enhance the record and then add it to the version
+                if v.singer:
+                    singer_object = Singer().get(v.singer)
+                    singer = singer_object.data.get("singer")
+                    
+                    # canonicalise the singer's name
+                    if singer_object.name is not None:
+                        canonname = si.canonicalise_name(singer_object.name)
+                        singer["canonical_name"] = canonname
+                    
+                    # canonicalise the singer's location
+                    if singer_object.location is not None and len(singer_object.location) > 0:
+                        sloc = si.canonicalise_location(singer_object.location)
+                        if sloc is not None:
+                            singer["canonical_location"] = sloc
+                    
+                    # expand the born and died dates
+                    if singer_object.born is not None:
+                        expanded = si.expand_date_partial(singer_object.born)
+                        singer["born_date"] = expanded
+                    if singer_object.died is not None:
+                        expanded = si.expand_date_partial(singer_object.died)
+                        singer["died_date"] = expanded
+                    
+                    version["singer"] = singer
+                
+                si.data["versions"].append(version)
+        
+        return si
+
     
     
     
