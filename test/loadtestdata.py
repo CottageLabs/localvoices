@@ -2,6 +2,7 @@ from portality.models import Song, Singer, Version
 from portality.models import SongIndex
 from portality import settings
 from portality.dao import LV_DAO
+import esprit
 
 # registries of the ids that we will want to index
 song_ids = []
@@ -12,6 +13,10 @@ version_ids = []
 ############################################
 
 LV_DAO.initialise_index(host=settings.ELASTIC_SEARCH_HOST, index=settings.ELASTIC_SEARCH_DB, mappings=settings.MAPPINGS)
+
+############################################
+# STORAGE
+############################################
 
 # construct singer records and save them
 #########################################
@@ -481,9 +486,36 @@ version_ids.append(version.id)
 
 
 
+###################################################
+# INDEXING
+###################################################
 
+# connection object to use for the save operations
+conn = esprit.raw.Connection(host=settings.ELASTIC_SEARCH_HOST, index=settings.ELASTIC_SEARCH_DB)
 
+# index all the songs
+#####################
 
+for sid in song_ids:
+    song = Song().get(sid, links=True, host=settings.ELASTIC_SEARCH_HOST, index=settings.ELASTIC_SEARCH_DB)
+    si = SongIndex.from_song(song)
+    si.save(conn=conn)
+
+# index all the singers
+#######################
+
+for sid in singer_ids:
+    singer = Singer().get(sid, links=True, host=settings.ELASTIC_SEARCH_HOST, index=settings.ELASTIC_SEARCH_DB)
+    si = SingerIndex.from_singer(singer)
+    si.save(conn=conn)
+
+# index all the versions
+########################
+
+for vid in version_ids:
+    version = Version().get(vid, links=True, host=settings.ELASTIC_SEARCH_HOST, index=settings.ELASTIC_SEARCH_DB)
+    vi = VersionIndex.from_version(version)
+    vi.save(conn=conn)
 
 
 

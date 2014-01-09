@@ -85,6 +85,36 @@ class LV_DAO(esprit.dao.DAO):
 
 class SongStoreDAO(LV_DAO):
 
+    def get(self, id, links=False, host=None, port=None, index=None):
+        # create a connection to the ES server
+        conn = self.make_es_connection(host, port, index)
+        
+        # execute a multi get against the index
+        resp = esprit.raw.get(conn, "song_store", id)
+        obj = esprit.raw.unpack_get(resp)
+        if obj is None:
+            return None
+        obj = self.__class__({"song" : obj})
+        
+        if links:
+            song_query = esprit.models.Query.term_filter("song_ids.exact", id)
+            version_query = esprit.models.Query.term_filter("song_id.exact", id)
+            
+            song_resp = esprit.raw.search(conn, "song2song", song_query)
+            song_links = esprit.raw.unpack_result(song_resp)
+            
+            version_resp = esprit.raw.search(conn, "song2version", version_query)
+            version_links = esprit.raw.unpack_result(version_resp)
+            
+            for l in song_links:
+                other = [x for x in l.get("song_ids") if x != id][0]
+                obj.add_song(other)
+            
+            for l in version_links:
+                obj.add_version(l.get("version_id"))
+        
+        return obj
+
     def get_all(self, ids, links=False, host=None, port=None, index=None):
         # create a connection to the ES server
         conn = self.make_es_connection(host, port, index)
@@ -457,4 +487,6 @@ class SongIndexDAO(esprit.dao.DomainObject):
     __type__ = "song"
     __conn__ = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_DB'])
     
+    def save(self, conn=None):
+        super(SongIndexDAO, self).save(conn=conn, updated=False, created=False)
     
