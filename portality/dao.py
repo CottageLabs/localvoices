@@ -2,6 +2,21 @@ import esprit
 from portality.core import app
 
 class LV_DAO(esprit.dao.DAO):
+
+    @classmethod
+    def initialise_index(cls, host=None, port=None, index=None, mappings=None):
+        # get the connection and the mapping based on the context
+        conn = LV_DAO().make_es_connection(host, port, index)
+        mappings = app.config["MAPPINGS"] if mappings is None else mappings
+        
+        if not esprit.raw.index_exists(conn):
+            print "Creating Index; host:" + str(conn.host) + " port:" + str(conn.port) + " db:" + str(conn.index)
+            esprit.raw.create_index(conn)
+        for key, mapping in mappings.iteritems():
+            if not esprit.raw.has_mapping(conn, key):
+                r = esprit.raw.put_mapping(conn, key, mapping)
+                print key, r.status_code
+
     def differential(self, existing, target):
         new = []
         removed = []
@@ -86,7 +101,7 @@ class SongStoreDAO(LV_DAO):
         
         return objects
 
-    def save(self, host=None, port=None, index=None):
+    def save(self, host=None, port=None, index=None, refresh=False):
         # can we proceed with storage?
         song = self.data.get("song")
         if song is None:
@@ -150,6 +165,10 @@ class SongStoreDAO(LV_DAO):
         
         # now kick off all of the actions
         self.actions(conn, action_queue)
+        
+        # call a refresh if needed
+        if refresh:
+            esprit.raw.refresh(conn)
     
     def remove(self, host=None, port=None, index=None):
         # can we delete?
@@ -215,7 +234,7 @@ class VersionStoreDAO(LV_DAO):
         
         return objects
 
-    def save(self, host=None, port=None, index=None):
+    def save(self, host=None, port=None, index=None, refresh=False):
         # can we proceed with storage?
         version = self.data.get("version")
         if version is None:
@@ -279,6 +298,10 @@ class VersionStoreDAO(LV_DAO):
         
         # now kick off all of the actions
         self.actions(conn, action_queue)
+        
+        # call a refresh if needed
+        if refresh:
+            esprit.raw.refresh(conn)
 
     def remove(self, host=None, port=None, index=None):
         # can we delete?
@@ -350,7 +373,7 @@ class SingerStoreDAO(LV_DAO):
         
         return obj
 
-    def save(self, host=None, port=None, index=None):
+    def save(self, host=None, port=None, index=None, refresh=False):
         # can we proceed with storage?
         singer = self.data.get("singer")
         if singer is None:
@@ -396,6 +419,10 @@ class SingerStoreDAO(LV_DAO):
         
         # now kick off all of the actions
         self.actions(conn, action_queue)
+        
+        # call a refresh if needed
+        if refresh:
+            esprit.raw.refresh(conn)
 
     def remove(self, host=None, port=None, index=None):
         # can we delete?

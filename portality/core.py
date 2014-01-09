@@ -21,7 +21,6 @@ def configure_app(app):
     if os.path.exists(config_path):
         app.config.from_pyfile(config_path)
 
-# FIXME: replace with call to esprit
 def initialise_index(app):
     mappings = app.config["MAPPINGS"]
     conn = esprit.raw.Connection(app.config['ELASTIC_SEARCH_HOST'], app.config['ELASTIC_SEARCH_DB'])

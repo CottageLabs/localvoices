@@ -73,6 +73,8 @@ Returns:
         "born" : "<(partial) datestamp>",
         "died" : "<(partial) datestamp>",
         "biography" : "<biographical summary>",
+        "photo_url" : "<url for singer's photo>",
+        "source" : "<source of information about this singer>",
         "songs" : [<opaque identifiers of song versions>]
         "created_date" : "<created date>",
         "last_updated" : "<last updated date>"
@@ -109,8 +111,8 @@ Returns:
             }
         ],
         "time_period" : {
-            "from" : "<partial date>",
-            "to" : "<partial date>"
+            "from" : "<time period indicator>",
+            "to" : "<time period indicator>"
         },
         "composer" : "<free text name of composer>",
         "relations" : [<opaque identifier of related song>],
@@ -125,7 +127,7 @@ Returns:
 * title - this is the most commonly agreed-upon title for the song
 * alternative_title - this is all of the titles of the song variants
 * location - a list of locations relevant to the song.  Each location is a compound attribute with the lat/long and the name of the place, as well as an optional relationship the place has to the song
-* time_period - a granular date (e.g. just the year), and optionally a range using "from" and "to" (if no range, just uses "from")
+* time_period - a vague date assertion through to a specific date (e.g. Late 17th Century, or c. 2000), and optionally a range using "from" and "to" (if no range, just uses "from")
 * composer - name of the composer of this song
 * relations - other songs which have relationships to this song (in an unspecified manner)
 * classifications - list of classifications aggregated from the song variants
@@ -143,10 +145,13 @@ Returns:
         "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
+        "media_url" : [<list of media links>],
+        "lyrics" : "<the lyrics of the version>",
+        "photo_url" : "<a photo representing the version>",
         "singer" : "<opaque identifier of the singer>",
         "collector" : "<free text name of collector>",
         "source" : "<free text source of material>",
-        "collected_date" : "<datestamp of collection>",
+        "collected_date" : "<partial date for collection>",
         "location" : [
             {
                 "relation" : "<nature of song's relationship to place>",
@@ -212,8 +217,8 @@ Documents held in the Song Store will have the following form:
             }
         ],
         "time_period" : {
-            "from" : "<partial date>",
-            "to" : "<partial date>"
+            "from" : "<time period indicator>",
+            "to" : "<time period indicator>"
         },
         "composer" : "<free text name of composer>",
         "created_date" : "<created date>",
@@ -231,9 +236,12 @@ Documents held in the Version Store will have the following form:
         "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
+        "media_url" : [<list of media links>],
+        "lyrics" : "<the lyrics of the version>",
+        "photo_url" : "<a photo representing the version>",
         "collector" : "<free text name of collector>",
         "source" : "<free text source of material>",
-        "collected_date" : "<datestamp of collection>",
+        "collected_date" : "<partial date for collection>",
         "location" : [
             {
                 "relation" : "<nature of song's relationship to place>",
@@ -279,7 +287,9 @@ Documents held in the Singer Store will have the following form:
         ]
         "born" : "<(partial) datestamp>",
         "died" : "<(partial) datestamp>",
-        "biography" : "<biographical summary>"
+        "biography" : "<biographical summary>",
+        "source" : "<source of information about this singer>",
+        "photo_url" : "<url for singer's photo>",
         "created_date" : "<created date>",
         "last_updated" : "<last updated date>",
     }
@@ -344,8 +354,8 @@ Documents held in the Song2Song link table will have the following form:
             }
         ],
         "time_period" : {
-            "from" : "<partial date>",
-            "to" : "<partial date>"
+            "from" : "<time period indicator>",
+            "to" : "<time period indicator>"
         },
         "composer" : "<free text name of composer>",
         "created_date" : "<created date>",
@@ -376,9 +386,12 @@ Documents held in the Song2Song link table will have the following form:
                 "alternative_title" : [<list of alternative titles>],
                 "summary" : "<free text summary>",
                 "language" : [<list of languages>],
+                "media_url" : [<list of media links>],
+                "lyrics" : "<the lyrics of the version>",
+                "photo_url" : "<a photo representing the version>",
                 "collector" : "<free text name of collector>",
                 "source" : "<free text source of material>",
-                "collected_date" : "<datestamp of collection>",
+                "collected_date" : "<partial date for collection>",
                 "location" : [
                     {
                         "relation" : "<nature of song's relationship to place>",
@@ -423,7 +436,9 @@ Documents held in the Song2Song link table will have the following form:
                     ]
                     "born" : "<(partial) datestamp>",
                     "died" : "<(partial) datestamp>",
-                    "biography" : "<biographical summary>"
+                    "biography" : "<biographical summary>",
+                    "photo_url" : "<url for singer's photo>",
+                    "source" : "<source of information about this singer>",
                     "created_date" : "<created date>",
                     "last_updated" : "<last updated date>",
                     
@@ -471,6 +486,8 @@ Documents held in the Song2Song link table will have the following form:
         "born" : "<(partial) datestamp>",
         "died" : "<(partial) datestamp>",
         "biography" : "<biographical summary>",
+        "source" : "<source of information about this singer>",
+        "photo_url" : "<url for singer's photo>",
         "created_date" : "<created date>",
         "last_updated" : "<last updated date>",
         
@@ -489,9 +506,12 @@ Documents held in the Song2Song link table will have the following form:
                 "alternative_title" : [<list of alternative titles>],
                 "summary" : "<free text summary>",
                 "language" : [<list of languages>],
+                "media_url" : [<list of media links>],
+                "lyrics" : "<the lyrics of the version>",
+                "photo_url" : "<a photo representing the version>",
                 "collector" : "<free text name of collector>",
                 "source" : "<free text source of material>",
-                "collected_date" : "<datestamp of collection>",
+                "collected_date" : "<partial date for collection>",
                 "location" : [
                     {
                         "relation" : "<nature of song's relationship to place>",
@@ -529,8 +549,8 @@ Documents held in the Song2Song link table will have the following form:
                         }
                     ],
                     "time_period" : {
-                        "from" : "<partial date>",
-                        "to" : "<partial date>"
+                        "from" : "<time period indicator>",
+                        "to" : "<time period indicator>"
                     },
                     "composer" : "<free text name of composer>",
                     "created_date" : "<created date>",
@@ -563,6 +583,9 @@ Documents held in the Song2Song link table will have the following form:
         "alternative_title" : [<list of alternative titles>],
         "summary" : "<free text summary>",
         "language" : [<list of languages>],
+        "media_url" : [<list of media links>],
+        "lyrics" : "<the lyrics of the version>",
+        "photo_url" : "<a photo representing the version>",
         "collector" : "<free text name of collector>",
         "source" : "<free text source of material>",
         "collected_date" : "<datestamp of collection>",
@@ -610,7 +633,9 @@ Documents held in the Song2Song link table will have the following form:
             ]
             "born" : "<(partial) datestamp>",
             "died" : "<(partial) datestamp>",
-            "biography" : "<biographical summary>"
+            "biography" : "<biographical summary>",
+            "photo_url" : "<url for singer's photo>",
+            "source" : "<source of information about this singer>",
             "created_date" : "<created date>",
             "last_updated" : "<last updated date>",
             
@@ -636,8 +661,8 @@ Documents held in the Song2Song link table will have the following form:
                 }
             ],
             "time_period" : {
-                "from" : "<partial date>",
-                "to" : "<partial date>"
+                "from" : "<time period indicator>",
+                "to" : "<time period indicator>"
             },
             "composer" : "<free text name of composer>",
             "created_date" : "<created date>",

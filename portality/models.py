@@ -186,6 +186,9 @@ class Version(LV, dao.VersionStoreDAO):
             "alternative_title" : [<list of alternative titles>],
             "summary" : "<free text summary>",
             "language" : [<list of languages>],
+            "media_url" : [<list of media links>],
+            "lyrics" : "<the lyrics of the version>",
+            "photo_url" : "<a photo representing the version>",
             "collector" : "<free text name of collector>",
             "source" : "<free text source of material>",
             "collected_date" : "<datestamp of collection>",
@@ -282,6 +285,35 @@ class Version(LV, dao.VersionStoreDAO):
     
     def add_language(self, language):
         self._append_version_property("language", language)
+    
+    @property
+    def media_url(self):
+        return self.data.get("version", {}).get("media_url", [])
+    
+    @media_url.setter
+    def media_url(self, value):
+        if not isinstance(value, list):
+            value = [value]
+        self._set_version_property("media_url", value)
+    
+    def add_media_url(self, value):
+        self._append_version_property("media_url", value)
+    
+    @property
+    def lyrics(self):
+        return self.data.get("version", {}).get("lyrics")
+    
+    @lyrics.setter
+    def lyrics(self, value):
+        self._set_version_property("lyrics", value)
+    
+    @property
+    def photo_url(self):
+        return self.data.get("version", {}).get("photo_url")
+    
+    @photo_url.setter
+    def photo_url(self, value):
+        self._set_version_property("photo_url", value)
     
     @property
     def collector(self):
@@ -421,7 +453,9 @@ class Singer(LV, dao.SingerStoreDAO):
             ]
             "born" : "<(partial) datestamp>",
             "died" : "<(partial) datestamp>",
-            "biography" : "<biographical summary>"
+            "biography" : "<biographical summary>",
+            "source" : "<source of information about this singer>",
+            "photo_url" : "<url for singer's photo>",
             "created_date" : "<created date>",
             "last_updated" : "<last updated date>",
         },
@@ -558,6 +592,22 @@ class Singer(LV, dao.SingerStoreDAO):
         self._set_singer_property("biography", value)
     
     @property
+    def photo_url(self):
+        return self.data.get("singer", {}).get("photo_url")
+    
+    @photo_url.setter
+    def photo_url(self, value):
+        self._set_singer_property("photo_url", value)
+    
+    @property
+    def source(self):
+        return self.data.get("singer", {}).get("source")
+    
+    @source.setter
+    def source(self, value):
+        self._set_singer_property("source", value)
+    
+    @property
     def created_date(self):
         return self.data.get("singer", {}).get("created_date")
     
@@ -593,7 +643,7 @@ class Singer(LV, dao.SingerStoreDAO):
 class LV_Index(object):
     # relations, in order of preference of canonical
     # FIXME: we don't know what these relationships are yet
-    location_relations = []
+    location_relations = ["main", "native_area", "significant"]
 
     def canonicalise_location(self, locations):
         loc = self._select_location(locations)
