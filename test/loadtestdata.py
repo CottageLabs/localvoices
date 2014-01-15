@@ -1,5 +1,5 @@
 from portality.models import Song, Singer, Version
-from portality.models import SongIndex
+from portality.models import SongIndex, SingerIndex, VersionIndex
 from portality import settings
 from portality.dao import LV_DAO
 import esprit

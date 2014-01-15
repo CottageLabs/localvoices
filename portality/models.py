@@ -176,6 +176,9 @@ class Song(LV, dao.SongStoreDAO):
             self.data["songs"] = []
         self.data["songs"].append(song_id)
     
+    def get_alternative_titles(self):
+        return super(Song, self).get_alternative_titles(self.versions)
+    
 class Version(LV, dao.VersionStoreDAO):
     """
     {
@@ -715,8 +718,140 @@ class LV_Index(object):
         try:
             return datetime.strptime(partial, "%Y-%m-%d").strftime("%Y-%m-%d")
         except: pass
-        print "fail on " + partial
+        return None
 
+class VersionIndex(LV_Index, dao.VersionIndexDAO):
+    @classmethod
+    def from_version(cls, version):
+        # make a copy of the core version object and wrap the versionindex around it
+        v = version.data.get("version")
+        if v is None:
+            raise ModelException("for versionindex to be made from_version, version object must contain a version!")
+        vi = cls(deepcopy(v))
+        
+        # if the version has a location, canonicalise it
+        vloc = version.location
+        if vloc is not None and len(vloc) > 0:
+            vl = vi.canonicalise_location(vloc)
+            if vl is not None:
+                vi.data["canonical_location"] = vl
+        
+        # if the version has a singer, add their record
+        if version.singer is not None:
+            singer_object = Singer().get(version.singer)
+            singer = singer_object.data.get("singer")
+            
+            # canonicalise the singer's name
+            if singer_object.name is not None:
+                canonname = vi.canonicalise_name(singer_object.name)
+                singer["canonical_name"] = canonname
+            
+            # canonicalise the singer's location
+            if singer_object.location is not None and len(singer_object.location) > 0:
+                sloc = vi.canonicalise_location(singer_object.location)
+                if sloc is not None:
+                    singer["canonical_location"] = sloc
+            
+            # expand the born and died dates
+            if singer_object.born is not None:
+                expanded = vi.expand_date_partial(singer_object.born)
+                singer["born_date"] = expanded
+            if singer_object.died is not None:
+                expanded = vi.expand_date_partial(singer_object.died)
+                singer["died_date"] = expanded
+            
+            vi.data["singer"] = singer
+        
+        # if the version has a song, add its record
+        if version.song is not None:
+            song_object = Song().get(version.song, links=True)
+            song = song_object.data.get("song")
+            
+            # canonicalise the song location
+            loc = song_object.location
+            if loc is not None and len(loc) > 0:
+                cl = vi.canonicalise_location(loc)
+                if cl is not None:
+                    song["canonical_location"] = cl
+            
+            # finally get all the alternative titles of the song
+            alts = song_object.get_alternative_titles()
+            song["alternative_title"] = alts
+            
+            # add to the version
+            vi.data["song"] = song
+        
+        return vi
+
+class SingerIndex(LV_Index, dao.SingerIndexDAO):
+    
+    @classmethod
+    def from_singer(cls, singer):
+        # make a copy of the core singer object and wrap the singerindex around it
+        s = singer.data.get("singer")
+        if s is None:
+            raise ModelException("for singerindex to be made from_singer, singer object must contain a singer!")
+        si = cls(deepcopy(s))
+        
+        # canonicalise the singer's name
+        if singer.name is not None:
+            canonname = si.canonicalise_name(singer.name)
+            si.data["canonical_name"] = canonname
+        
+        # canonicalise the singer's location
+        if singer.location is not None and len(singer.location) > 0:
+            sloc = si.canonicalise_location(singer.location)
+            if sloc is not None:
+                si.data["canonical_location"] = sloc
+        
+        # expand the born and died dates
+        if singer.born is not None:
+            expanded = si.expand_date_partial(singer.born)
+            si.data["born_date"] = expanded
+        if singer.died is not None:
+            expanded = si.expand_date_partial(singer.died)
+            si.data["died_date"] = expanded
+        
+        # obtain all of the versions by this singer
+        si.data["versions"] = []
+        related_version_ids = singer.versions
+        if related_version_ids is not None and len(related_version_ids) > 0:
+            related_versions = Version().get_all(related_version_ids, links=True)
+            for v in related_versions:
+                version = v.data.get("version")
+                
+                # if the version has a location, canonicalise it
+                vloc = v.location
+                if vloc is not None and len(vloc) > 0:
+                    vl = si.canonicalise_location(vloc)
+                    if vl is not None:
+                        version["canonical_location"] = vl
+                
+                # if the version has a song, add it to the record
+                if v.song is not None:
+                    song_object = Song().get(v.song, links=True)
+                    song = song_object.data.get("song")
+                    
+                    # canonicalise the song location
+                    loc = song_object.location
+                    if loc is not None and len(loc) > 0:
+                        cl = si.canonicalise_location(loc)
+                        if cl is not None:
+                            song["canonical_location"] = cl
+                    
+                    # finally get all the alternative titles of the song
+                    alts = song_object.get_alternative_titles()
+                    song["alternative_title"] = alts
+                    
+                    # add to the version
+                    version["song"] = song
+                
+                # add to the singer
+                si.data["versions"].append(version)
+        
+        return si
+        
+        
 class SongIndex(LV_Index, dao.SongIndexDAO):
     
     @classmethod
