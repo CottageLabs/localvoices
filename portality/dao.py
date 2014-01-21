@@ -1,5 +1,6 @@
 import esprit
 from portality.core import app
+from copy import deepcopy
 
 class LV_DAO(esprit.dao.DAO):
 
@@ -527,3 +528,128 @@ class VersionIndexDAO(esprit.dao.DomainObject):
     
     def save(self, conn=None):
         super(VersionIndexDAO, self).save(conn=conn, updated=False, created=False)
+
+class Search(LV_DAO):
+    def search(self, types, query, host=None, port=None, index=None):
+        # create a connection to the ES server
+        conn = self.make_es_connection(host, port, index)
+        
+        # do the query on the selected types
+        resp = esprit.raw.search(conn, types, query)
+        
+        # we want to unpack and also transpose the _type into the object for the caller to distinguish between
+        # the different kinds of objects
+        j = resp.json()
+        records = []
+        for i in j.get('hits', {}).get('hits', []):
+            record = i.get("_source", {})
+            t = i.get("_type")
+            record["_type"] = t
+            records.append(record)
+        return records
+
+class SearchQuery(object):
+    _filtered_query = {
+        "query" : {
+            "filtered" : {
+                "query" : {"match_all" : {}}
+            }
+        }
+    }
+    
+    _bool_filter = { 
+        "filter" : {
+            "bool" : {}
+        }
+    }
+    
+    _geo_bounding_box_container = {"geo_bounding_box" : { "canonical_location" : {} }} # "canonical_location" : _geo_bounding_box
+    _geo_bounding_box = {"top_left" : {"lat" : 0, "lon": 0}, "bottom_right" : {"lat" : 0, "lon" : 0}}
+    _query_string = {"query_string" : { "query" : "<query string>", "default_operator" : "OR"}}
+    
+    _locations = [
+        "location.name",
+        "versions.location.name",
+        "versions.singer.location.name",
+        "versions.song.location.name",
+        "singer.location.name",
+        "song.location.name"
+    ]
+    
+    def __init__(self):
+        self.box = None
+        self.place = None
+        self.place_analysed = None
+        self.text = None
+        self.text_analysed = None
+
+    def bounding_box(self, from_lat, to_lat, from_lon, to_lon):
+        if self.box is None:
+            self.box = {}
+        self.box["from_lat"] = from_lat
+        self.box["to_lat"] = to_lat
+        self.box["from_lon"] = from_lon
+        self.box["to_lon"] = to_lon
+        
+    def place_query(self, place):
+        self.place = place
+        self.place_analysed = esprit.models.Query.tokenise(place)
+    
+    def text_query(self, text_query):
+        self.text = text_query
+        self.text_analysed = esprit.models.Query.tokenise(text_query)
+    
+    def query(self):
+        q = deepcopy(self._filtered_query)
+        
+        if self.box is not None or self.place is not None:
+            if "filter" not in q["query"]["filtered"]:
+                q["query"]["filtered"].update(deepcopy(self._bool_filter))
+        
+        if self.box is not None:
+            b = deepcopy(self._geo_bounding_box)
+            b["top_left"]["lat"] = self.box['from_lat']
+            b["top_left"]["lon"] = self.box['from_lon']
+            b["bottom_right"]["lat"] = self.box['to_lat']
+            b["bottom_right"]["lon"] = self.box['to_lon']
+            gbb = deepcopy(self._geo_bounding_box_container)
+            gbb["geo_bounding_box"]["canonical_location"] = b
+            
+            q["query"]["filtered"]["filter"]["bool"]["must"] = []
+            q["query"]["filtered"]["filter"]["bool"]["must"].append(gbb)
+        
+        if self.text is not None:
+            qa = deepcopy(self._query_string)
+            qa["query_string"]["query"] = " ".join(self.text_analysed)
+            q["query"]["filtered"]["query"] = qa
+        
+        if self.place is not None:
+            shoulds = []
+            for p in self.place_analysed:
+                for l in self._locations:
+                    shoulds.append({"term" : {l : p}})
+            q["query"]["filtered"]["filter"]["bool"]["should"] = shoulds
+        
+        return q
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

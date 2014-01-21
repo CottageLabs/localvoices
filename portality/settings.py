@@ -72,7 +72,9 @@ MAPPINGS = {
     "song2version" : mappings.for_type("song2version", mappings.dynamic_templates([mappings.EXACT])),
     "singer2version" : mappings.for_type("singer2version", mappings.dynamic_templates([mappings.EXACT])),
     "song" : mappings.for_type(
-        "songs", mappings.dynamic_templates(
+        "song", 
+            mappings.properties(mappings.type_mapping("canonical_location", "geo_point")),
+            mappings.dynamic_templates(
             [
                 mappings.EXACT, 
                 mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
@@ -80,7 +82,9 @@ MAPPINGS = {
         )
     ),
     "version" : mappings.for_type(
-        "versions", mappings.dynamic_templates(
+        "version",
+            mappings.properties(mappings.type_mapping("canonical_location", "geo_point")), 
+            mappings.dynamic_templates(
             [
                 mappings.EXACT, 
                 mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
@@ -88,7 +92,9 @@ MAPPINGS = {
         )
     ),
     "singer" : mappings.for_type(
-        "singers", mappings.dynamic_templates(
+        "singer", 
+            mappings.properties(mappings.type_mapping("canonical_location", "geo_point")),
+            mappings.dynamic_templates(
             [
                 mappings.EXACT, 
                 mappings.dynamic_type_template("geo", "canonical_location", mappings.make_mapping("geo_point"))
