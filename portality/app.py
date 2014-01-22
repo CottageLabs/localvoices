@@ -63,7 +63,7 @@ def search():
     from_lon = request.values.get("from_lon")
     to_lon = request.values.get("to_lon")
     place = request.values.get("place")
-    q = request.values.get("q")
+    q= request.values.get("q")
     type = request.values.get("type")
     
     # break down the comma-delimited string of query types
@@ -71,7 +71,7 @@ def search():
     
     # ask the API to calculate the answer
     result = LocalVoicesAPI.search(from_lat=from_lat, to_lat=to_lat, from_lon=from_lon, 
-                                    to_lon=to_lon, place=place, q=q, types=types)
+                                    to_lon=to_lon, place=place, query_string=q, types=types)
     
     # return a json response
     resp = make_response(json.dumps(result))
@@ -80,11 +80,25 @@ def search():
     
 @app.route("/singers", methods=["GET", "POST"])
 def singers():
-    pass
+    if request.method == "GET":
+        from_param = request.values.get("from")
+        size = request.values.get("size")
+        letter = request.values.get("letter")
+        
+        result = LocalVoicesAPI.list_singers(fr=from_param, size=size, initial_letters=letter, order="asc")
+        
+        # return a json response
+        resp = make_response(json.dumps(result))
+        resp.mimetype = "application/json"
+        return resp
 
 @app.route("/singer/<singer_id>", methods=["GET", "PUT", "DELETE"])
 def singer(singer_id):
-    pass
+    if request.method == "GET":
+        s = LocalVoicesAPI.get_singer(singer_id)
+        resp = make_response(json.dumps(s))
+        resp.mimetype = "application/json"
+        return resp
 
 @app.route("/songs", methods=["POST"])
 def songs():
@@ -92,7 +106,11 @@ def songs():
 
 @app.route("/song/<song_id>", methods=["GET", "PUT", "DELETE"])
 def song(song_id):
-    pass
+    if request.method == "GET":
+        s = LocalVoicesAPI.get_song(song_id)
+        resp = make_response(json.dumps(s))
+        resp.mimetype = "application/json"
+        return resp
 
 @app.route("/versions", methods=["POST"])
 def versions():

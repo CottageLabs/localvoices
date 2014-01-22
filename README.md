@@ -492,6 +492,7 @@ Documents held in the Song2Song link table will have the following form:
         "last_updated" : "<last updated date>",
         
         "canonical_name" : "<canonicalised version of the singer name>",
+        "order_by_name" : "<form of name to calculate sorting on>",
         "canonical_location" : {
             "lat" : "<canonical latitude for the singer>",
             "lon" : "<canonical longitude for the singer>",
@@ -756,8 +757,20 @@ The following URL params are permitted
 * place - placename to search for
 * q - free-text query string
 * type - one or more of "singer", "song", "version" as a comma-delimitted list
+* from - the result number to commence listing from.  Defaults to 0, and is used for result set paging
+* size - the size of the result set, and can be used to determine the "from" value for the next request when paging
 
-This returns full JSON representations of the objects that match, as held in the index (not the store)
+This returns full JSON representations of the objects that match, as held in the index (not the store), along with paging information
+
+    {
+        "from" : "<position of cursor in result set>",
+        "size" : "<requested number of records>",
+        "count" : "<number of records actually returned on this page>",
+        "total" : "<total number of results to the query (including those not listed on this page)>",
+        "results" : [
+            <results ordered by relevance>
+        ]
+    }
 
 **2/ Retrieve full details about a singer**
 
@@ -785,15 +798,22 @@ The following URL params are permitted:
 * size - the size of the result set, and can be used to determine the "from" value for the next request when paging
 * letter - the specific letter the singer's name should start with
 
-Returns a JSON list of names and singer ids in alphabetical order, with the count of the song versions associated
+Returns a JSON list of names and singer ids in alphabetical order, with the count of the song versions associated, along with associated paging information
 
-    [
-        {
-            "id" : "<opaque internal identifier for singer>",
-            "name" : "<canonical version of singer's name>",
-            "versions" : "<count of the number of song versions associated>"
-        }
-    ]
+    {
+        "from" : "<position of cursor in result set>",
+        "size" : "<requested number of records>",
+        "count" : "<number of records actually returned on this page>",
+        "total" : "<total number of results to the query (including those not listed on this page)>",
+        "results" : [
+            {
+                "id" : "<opaque internal identifier for singer>",
+                "name" : "<canonical version of singer's name>",
+                "version_count" : "<count of the number of song versions associated>"
+            }
+        ]
+    }
+    
 
 ### Auto-Complete API
 

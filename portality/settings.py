@@ -15,7 +15,7 @@ SERVICE_NAME = "Local Voices"
 SERVICE_TAGLINE = "Square Mile Songs"
 HOST = "0.0.0.0"
 DEBUG = True
-PORT = 5004
+PORT = 5002
 
 # elasticsearch settings
 ELASTIC_SEARCH_HOST = "http://127.0.0.1:9200" # remember the http:// or https://

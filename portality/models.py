@@ -1,6 +1,9 @@
 from portality import dao
 from copy import deepcopy
 from datetime import datetime
+import string
+
+unicode_punctuation_map = dict((ord(char), None) for char in string.punctuation)
 
 class ModelException(Exception):
     def __init__(self, value):
@@ -706,6 +709,32 @@ class LV_Index(object):
             return name
         return None
     
+    def order_by_name(self, name_object):
+        first = name_object.get("first", "")
+        middle = name_object.get("middle", "")
+        last = name_object.get("last", "")
+        if middle != "": first += " "
+        if last != "": middle += " "
+        name = last + middle + first
+        name = self._normalise_name_string(name)
+        if name != "":
+            return name
+        return None
+    
+    def _normalise_name_string(self, s):
+        if type(s) == "str":
+            s = s.translate(string.maketrans("",""), string.punctuation)
+        elif type(s) == "unicode":
+            s = s.translate(unicode_punctuation_map)
+        s = s.lower().replace(" ", "_")
+        return s
+    
+    def canonicalise_group(self, groups):
+        # all we can really do is return the first group
+        if len(groups) > 0:
+            return groups[0]
+        return None
+    
     def expand_date_partial(self, partial):
         try:
             return datetime.strptime(partial, "%Y").strftime("%Y-%m-%d")
@@ -741,9 +770,14 @@ class VersionIndex(LV_Index, dao.VersionIndexDAO):
             singer_object = Singer().get(version.singer)
             singer = singer_object.data.get("singer")
             
-            # canonicalise the singer's name
+            # canonicalise the singer or group's name
             if singer_object.name is not None:
+                # singer name takes priority over group name
                 canonname = vi.canonicalise_name(singer_object.name)
+                singer["canonical_name"] = canonname
+            elif singer_object.groups is not None and len(singer_object.groups) > 0:
+                # if there's no singer name, use the group name
+                canonname = vi.canonicalise_group(singer_object.groups)
                 singer["canonical_name"] = canonname
             
             # canonicalise the singer's location
@@ -793,10 +827,20 @@ class SingerIndex(LV_Index, dao.SingerIndexDAO):
             raise ModelException("for singerindex to be made from_singer, singer object must contain a singer!")
         si = cls(deepcopy(s))
         
-        # canonicalise the singer's name
+        # canonicalise the singer or group's name
         if singer.name is not None:
+            # singer name takes priority over group name
             canonname = si.canonicalise_name(singer.name)
             si.data["canonical_name"] = canonname
+        elif singer.groups is not None and len(singer.groups) > 0:
+            # if there's no singer name, use the group name
+            canonname = si.canonicalise_group(singer.groups)
+            si.data["canonical_name"] = canonname
+        
+        # sort out the order_by_name field for alphabetical sorting
+        if singer.name is not None:
+            order_by = si.order_by_name(singer.name)
+            si.data["order_by_name"] = order_by
         
         # canonicalise the singer's location
         if singer.location is not None and len(singer.location) > 0:
@@ -921,9 +965,14 @@ class SongIndex(LV_Index, dao.SongIndexDAO):
                     singer_object = Singer().get(v.singer)
                     singer = singer_object.data.get("singer")
                     
-                    # canonicalise the singer's name
+                    # canonicalise the singer or group's name
                     if singer_object.name is not None:
+                        # singer name takes priority over group name
                         canonname = si.canonicalise_name(singer_object.name)
+                        singer["canonical_name"] = canonname
+                    elif singer_object.groups is not None and len(singer_object.groups) > 0:
+                        # if there's no singer name, use the group name
+                        canonname = si.canonicalise_group(singer_object.groups)
                         singer["canonical_name"] = canonname
                     
                     # canonicalise the singer's location

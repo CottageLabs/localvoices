@@ -530,22 +530,28 @@ class VersionIndexDAO(esprit.dao.DomainObject):
         super(VersionIndexDAO, self).save(conn=conn, updated=False, created=False)
 
 class Search(LV_DAO):
-    def search(self, types, query, host=None, port=None, index=None):
+    def search(self, types, query, transpose_type=True, host=None, port=None, index=None):
         # create a connection to the ES server
         conn = self.make_es_connection(host, port, index)
         
         # do the query on the selected types
         resp = esprit.raw.search(conn, types, query)
         
-        # we want to unpack and also transpose the _type into the object for the caller to distinguish between
-        # the different kinds of objects
-        j = resp.json()
         records = []
-        for i in j.get('hits', {}).get('hits', []):
-            record = i.get("_source", {})
-            t = i.get("_type")
-            record["_type"] = t
-            records.append(record)
+        if transpose_type:
+            # we want to unpack and also transpose the _type into the object for the caller to distinguish between
+            # the different kinds of objects
+            j = resp.json()
+            for i in j.get('hits', {}).get('hits', []):
+                record = i.get("_source", {})
+                t = i.get("_type")
+                record["_type"] = t
+                records.append(record)
+                
+        else:
+            # otherwise, let esprit deal with it
+            records = esprit.raw.unpack_result(resp)
+        
         return records
 
 class SearchQuery(object):
@@ -632,9 +638,63 @@ class SearchQuery(object):
         
         return q
     
+class ListSingersQuery(object):
+    _base_query = {
+        "fields" : ["id", "canonical_name"],
+        "script_fields" : { "version_count" : {"script" : "doc['versions.id'].values.length"} },
+        "query" : {
+            "match_all" : {}
+        },
+        "size" : 50,
+        "sort" : [{"order_by_name.exact" : {"order" : "asc"}}]
+    }
     
+    _from = {"from" : 0}
+    _query_string = {"query_string" : { "query" : "<query string>"}}
     
+    _all_results = 10000
     
+    def __init__(self):
+        self.from_number = None
+        self.size = 50
+        self.initial_letters = None
+        self.order = "asc"
+    
+    def set_from(self, fr):
+        self.from_number = fr
+    
+    def set_size(self, size):
+        self.size = size
+    
+    def all_results(self):
+        self.size = self._all_results
+    
+    def set_initial_letters(self, letters):
+        self.initial_letters = letters
+    
+    def set_order(self, order):
+        self.order = order
+    
+    def query(self):
+        q = deepcopy(self._base_query)
+        
+        if self.from_number is not None:
+            f = deepcopy(self._from)
+            f["from"] = self.from_number
+            q.update(f)
+        
+        if self.size is not None:
+            q["size"] = self.size
+        
+        if self.order.lower() in ["asc", "desc"]:
+            q["sort"][0]["order_by_name.exact"]["order"] = self.order.lower()
+        
+        if self.initial_letters is not None:
+            qs = deepcopy(self._query_string)
+            qs["query_string"]["query"] = "order_by_name:" + self.initial_letters.lower() + "*"
+            q["query"] = qs
+        
+        return q
     
     
     
