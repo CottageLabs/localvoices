@@ -552,7 +552,9 @@ class Search(LV_DAO):
             # otherwise, let esprit deal with it
             records = esprit.raw.unpack_result(resp)
         
-        return records
+        total = resp.json().get("hits", {}).get("total")
+        
+        return records, total
 
 class SearchQuery(object):
     _filtered_query = {
@@ -588,6 +590,8 @@ class SearchQuery(object):
         self.place_analysed = None
         self.text = None
         self.text_analysed = None
+        self._from_number = 0
+        self._page_size = 25
 
     def bounding_box(self, from_lat, to_lat, from_lon, to_lon):
         if self.box is None:
@@ -604,6 +608,12 @@ class SearchQuery(object):
     def text_query(self, text_query):
         self.text = text_query
         self.text_analysed = esprit.models.Query.tokenise(text_query)
+    
+    def from_number(self, fr):
+        self._from_number = fr
+    
+    def page_size(self, size):
+        self._page_size = size
     
     def query(self):
         q = deepcopy(self._filtered_query)
@@ -635,6 +645,12 @@ class SearchQuery(object):
                 for l in self._locations:
                     shoulds.append({"term" : {l : p}})
             q["query"]["filtered"]["filter"]["bool"]["should"] = shoulds
+        
+        if self._from_number is not None:
+            q["from"] = self._from_number
+        
+        if self._page_size is not None:
+            q["size"] = self._page_size
         
         return q
     

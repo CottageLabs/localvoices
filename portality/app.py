@@ -4,8 +4,8 @@ from flask.views import View
 import json
 
 import portality.models as models
-from portality.core import app, login_manager
-from portality.api import LocalVoicesAPI
+from portality.core import app#, login_manager
+from portality.api import LocalVoicesAPI, NotFoundException
 
 # in case we need any login stuff later, these are useful ...
 '''
@@ -56,6 +56,8 @@ def search():
     place - placename to search for
     q - free-text query string
     type - one or more of "singer", "song", "version" as a comma-delimitted list
+    from - result number to start from
+    size - page size to return
     """
     # extract the parameters from the query string
     from_lat = request.values.get("from_lat")
@@ -65,41 +67,93 @@ def search():
     place = request.values.get("place")
     q= request.values.get("q")
     type = request.values.get("type")
+    fr = request.values.get("from", 0)
+    size = request.values.get("size", 25)
     
     # break down the comma-delimited string of query types
     types = [t.strip() for t in type.split(",")] if type is not None else None
     
     # ask the API to calculate the answer
     result = LocalVoicesAPI.search(from_lat=from_lat, to_lat=to_lat, from_lon=from_lon, 
-                                    to_lon=to_lon, place=place, query_string=q, types=types)
+                                    to_lon=to_lon, place=place, query_string=q, types=types,
+                                    from_number=fr, page_size=size)
     
     # return a json response
-    resp = make_response(json.dumps(result))
+    resp = make_response(json.dumps(result.as_dict()))
     resp.mimetype = "application/json"
     return resp
     
 @app.route("/singers", methods=["GET", "POST"])
 def singers():
     if request.method == "GET":
-        from_param = request.values.get("from")
-        size = request.values.get("size")
+        from_param = request.values.get("from", 0)
+        size = request.values.get("size", 50)
         letter = request.values.get("letter")
         
         result = LocalVoicesAPI.list_singers(fr=from_param, size=size, initial_letters=letter, order="asc")
         
         # return a json response
-        resp = make_response(json.dumps(result))
+        resp = make_response(json.dumps(result.as_dict()))
         resp.mimetype = "application/json"
         return resp
+    
+    elif request.method == "POST":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        newid = None
+        if "id" in req:
+            # this is an update to an existing object
+            try:
+                LocalVoicesAPI.update_singer(req.get("id"), singer_json=req.get("singer"), versions=req.get("versions"))
+                newid = req.get("id")
+            except NotFoundException:
+                abort(400) # bad request, not 404, as the url itself is fine
+        else:
+            # we are creating a new singer
+            if req.get("singer") is not None:
+                new_singer = LocalVoicesAPI.create_singer(req.get("singer"), req.get("versions"))
+                newid = new_singer.id
+            else:
+                abort(400)
+        
+        resp = make_response(json.dumps({"id" : newid}))
+        resp.mimetype = "application/json"
+        return resp
+        
 
 @app.route("/singer/<singer_id>", methods=["GET", "PUT", "DELETE"])
 def singer(singer_id):
     if request.method == "GET":
-        s = LocalVoicesAPI.get_singer(singer_id)
-        resp = make_response(json.dumps(s))
-        resp.mimetype = "application/json"
-        return resp
-
+        try:
+            s = LocalVoicesAPI.get_singer(singer_id)
+            resp = make_response(json.dumps(s))
+            resp.mimetype = "application/json"
+            return resp
+        except NotFoundException:
+            abort(404)
+    
+    elif request.method == "PUT":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        try:
+            LocalVoicesAPI.update_singer(singer_id, singer_json=req.get("singer"), versions=req.get("versions"))
+            return "", 204
+        except NotFoundException:
+            abort(404)
+    
+    elif request.method == "DELETE":
+        try:
+            LocalVoicesAPI.delete_singer(singer_id)
+            return "", 204
+        except NotFoundException:
+            abort(404)
+        
 @app.route("/songs", methods=["POST"])
 def songs():
     pass
@@ -107,10 +161,13 @@ def songs():
 @app.route("/song/<song_id>", methods=["GET", "PUT", "DELETE"])
 def song(song_id):
     if request.method == "GET":
-        s = LocalVoicesAPI.get_song(song_id)
-        resp = make_response(json.dumps(s))
-        resp.mimetype = "application/json"
-        return resp
+        try:
+            s = LocalVoicesAPI.get_song(song_id)
+            resp = make_response(json.dumps(s))
+            resp.mimetype = "application/json"
+            return resp
+        except NotFoundException:
+            abort(404)
 
 @app.route("/versions", methods=["POST"])
 def versions():

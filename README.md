@@ -771,6 +771,13 @@ This returns full JSON representations of the objects that match, as held in the
             <results ordered by relevance>
         ]
     }
+    
+Note also that in this API, each result will contain an "_type" element with one of "song", "singer", "version", as search may operate across all types, and the user of the API will need to be able to distinguish between the object types.  For example
+
+    {
+        "_type" : "song",
+        ... other song metadata ...
+    }
 
 **2/ Retrieve full details about a singer**
 

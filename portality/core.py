@@ -2,15 +2,15 @@ import os, requests, json, esprit
 from flask import Flask
 
 from portality import settings
-from flask.ext.login import LoginManager, current_user
-login_manager = LoginManager()
+#from flask.ext.login import LoginManager, current_user
+#login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
     configure_app(app)
     if app.config.get('INITIALISE_INDEX',False): initialise_index(app)
     setup_error_email(app)
-    login_manager.setup_app(app)
+    #login_manager.setup_app(app)
     return app
 
 def configure_app(app):

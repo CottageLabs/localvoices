@@ -489,6 +489,24 @@ class Singer(LV, dao.SingerStoreDAO):
     def id(self, value):
         self._set_singer_property("id", value)
     
+    def patch_singer(self, new_singer, replace_all=True, keep_id=True):
+        # normalise the incoming singer document
+        if "singer" in new_singer:
+            new_singer = new_singer.get("singer")
+        
+        # remember the id
+        oid = None
+        if keep_id:
+            oid = self.id
+        
+        if replace_all:
+            self.data["singer"] = new_singer
+        else:
+            raise NotImplementedError()
+        
+        if keep_id:
+            self.id = oid
+    
     @property
     def lv_id(self):
         return self.data.get("singer", {}).get("lv_id")
@@ -819,6 +837,46 @@ class VersionIndex(LV_Index, dao.VersionIndexDAO):
 
 class SingerIndex(LV_Index, dao.SingerIndexDAO):
     
+    @classmethod
+    def by_id(cls, singer_id, cascade=True):
+        # get the original singer
+        singer = Singer().get(singer_id, links=True)
+        
+        if not cascade:
+            return
+        
+        # generate the singer index
+        si = SingerIndex.from_singer(singer)
+        si.save()
+        
+        # for each version regenerate the version index
+        for v in singer.versions:
+            version = Version().get(v, links=True)
+            vi = VersionIndex.from_version(version)
+            vi.save()
+            
+            # regenerate the song index
+            if version.song is not None:
+                song = Song().get(version.song, links=True)
+                soi = SongIndex.from_song(song)
+                soi.save()
+    
+    @classmethod
+    def delete_by_id(cls, singer_id, cascade=True):
+        si = SingerIndex.pull(singer_id)
+        
+        for v in si.data.get("versions"):
+            version = Version().get(v.get("id"), links=True)
+            vi = VersionIndex.from_version(version)
+            vi.save()
+            
+            if version.get("song") is not None:
+                song = Song().get(version.get("song", {}).get("id"), links=True)
+                soi = SongIndex.from_song(song)
+                soi.save()
+            
+        si.delete()
+        
     @classmethod
     def from_singer(cls, singer):
         # make a copy of the core singer object and wrap the singerindex around it
