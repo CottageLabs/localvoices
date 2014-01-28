@@ -156,7 +156,31 @@ def singer(singer_id):
         
 @app.route("/songs", methods=["POST"])
 def songs():
-    pass
+    if request.method == "POST":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        newid = None
+        if "id" in req:
+            # this is an update to an existing object
+            try:
+                LocalVoicesAPI.update_song(req.get("id"), song_json=req.get("song"), versions=req.get("versions"), songs=req.get("songs"))
+                newid = req.get("id")
+            except NotFoundException:
+                abort(400) # bad request, not 404, as the url itself is fine
+        else:
+            # we are creating a new song
+            if req.get("song") is not None:
+                new_song = LocalVoicesAPI.create_song(req.get("song"), req.get("versions"), req.get("songs"))
+                newid = new_song.id
+            else:
+                abort(400)
+        
+        resp = make_response(json.dumps({"id" : newid}))
+        resp.mimetype = "application/json"
+        return resp
 
 @app.route("/song/<song_id>", methods=["GET", "PUT", "DELETE"])
 def song(song_id):
@@ -166,6 +190,25 @@ def song(song_id):
             resp = make_response(json.dumps(s))
             resp.mimetype = "application/json"
             return resp
+        except NotFoundException:
+            abort(404)
+    
+    elif request.method == "PUT":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        try:
+            LocalVoicesAPI.update_song(song_id, song_json=req.get("song"), versions=req.get("versions"), songs=req.get("songs"))
+            return "", 204
+        except NotFoundException:
+            abort(404)
+    
+    elif request.method == "DELETE":
+        try:
+            LocalVoicesAPI.delete_song(song_id)
+            return "", 204
         except NotFoundException:
             abort(404)
 

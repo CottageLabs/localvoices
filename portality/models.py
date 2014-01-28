@@ -56,6 +56,24 @@ class Song(LV, dao.SongStoreDAO):
             self.data["song"][prop] = []
         self.data["song"][prop].append(val)
     
+    def patch_song(self, new_song, replace_all=True, keep_id=True):
+        # normalise the incoming singer document
+        if "song" in new_song:
+            new_song = new_song.get("song")
+        
+        # remember the id
+        oid = None
+        if keep_id:
+            oid = self.id
+        
+        if replace_all:
+            self.data["song"] = new_song
+        else:
+            raise NotImplementedError()
+        
+        if keep_id:
+            self.id = oid
+    
     @property
     def id(self):
         return self.data.get("song", {}).get("id")
@@ -955,6 +973,53 @@ class SingerIndex(LV_Index, dao.SingerIndexDAO):
         
         
 class SongIndex(LV_Index, dao.SongIndexDAO):
+    
+    @classmethod
+    def by_id(cls, song_id, cascade=True):
+        # get the original song
+        song = Song().get(song_id, links=True)
+        
+        if not cascade:
+            return
+        
+        # generate the singer index
+        si = SongIndex.from_song(song)
+        si.save()
+        
+        # for each version regenerate the version index
+        for v in song.versions:
+            version = Version().get(v, links=True)
+            vi = VersionIndex.from_version(version)
+            vi.save()
+            
+            # regenerate the singer index
+            if version.singer is not None:
+                singer = Singer().get(version.singer, links=True)
+                soi = SingerIndex.from_singer(singer)
+                soi.save()
+        
+        # for each related song, regenerate its index
+        for s in song.songs:
+            relsong = Song().get(s, links=True)
+            ri = SongIndex.from_song(s)
+            ri.save()
+    
+    @classmethod
+    def delete_by_id(cls, song_id, cascade=True):
+        si = SongIndex.pull(song_id)
+        
+        # refresh the indexes of related songs
+        for rel in si.data.get("relations", []):
+            rs = Song().get(rel.get("id"))
+            ri = SongIndex.from_song(s)
+            ri.save()
+        
+        # deleting a song deletes all the versions, so we need
+        # to call delete by id on each version too
+        for v in si.data.get("versions", []):
+            VersionIndex.delete_by_id(v.get("id"))
+        
+        si.delete()
     
     @classmethod
     def from_song(cls, song):

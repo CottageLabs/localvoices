@@ -126,6 +126,8 @@ class LocalVoicesAPI(object):
         
         # call the indexing process, and index this object and all related ones
         SingerIndex.by_id(singer.id, cascade=True)
+        
+        return singer
     
     @classmethod
     def delete_singer(cls, singer_id):
@@ -139,6 +141,64 @@ class LocalVoicesAPI(object):
         
         # then remove the singer and re-index any related objects
         SingerIndex.delete_by_id(singer.id)
+    
+    @classmethod
+    def create_song(cls, song_json, versions, songs):
+        if song_json is None:
+            return None
+        
+        # create the song object and save it to the store
+        song = Song({"song" : song_json})
+        if versions is not None:
+            song.versions = versions
+        if songs is not None:
+            song.songs = songs
+        song.save()
+        
+        # call the indexing process, and index this object and all
+        # related ones
+        SongIndex.by_id(song.id, cascade=True)
+        
+        return song
+        
+    @classmethod
+    def update_song(cls, song_id, song_json=None, versions=None, songs=None):
+        # retrieve and update the song object in the desired way
+        song = Song().get(song_id, links=True)
+        
+        if song is None:
+            raise NotFoundException()
+        
+        if song_json is not None:
+            song.patch_song(song_json, replace_all=True, keep_id=True)
+        if versions is not None:
+            song.versions = versions
+        if songs is not None:
+            song.songs = songs
+        song.save()
+        
+        # call the indexing process, and index this object and all related ones
+        SongIndex.by_id(song.id, cascade=True)
+        
+        return song
+    
+    @classmethod
+    def delete_song(cls, song_id):
+        song = Song().get(song_id, links=True)
+        
+        if song is None:
+            raise NotFoundException()
+        
+        # remove the song from storage first
+        song.remove()
+        
+        # deleting a song also deletes all the associated versions
+        for v in song.versions:
+            version = Version().get(v, links=True)
+            version.remove()
+        
+        # then remove the singer and re-index any related objects
+        SongIndex.delete_by_id(song.id)
         
         
         
