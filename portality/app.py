@@ -214,11 +214,52 @@ def song(song_id):
 
 @app.route("/versions", methods=["POST"])
 def versions():
-    pass
+    if request.method == "POST":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        newid = None
+        if "id" in req:
+            # this is an update to an existing object
+            try:
+                LocalVoicesAPI.update_version(req.get("id"), version_json=req.get("version"), singer=req.get("singer"), song=req.get("song"))
+                newid = req.get("id")
+            except NotFoundException:
+                abort(400) # bad request, not 404, as the url itself is fine
+        else:
+            # we are creating a new song
+            if req.get("version") is not None:
+                new_version = LocalVoicesAPI.create_version(req.get("version"), req.get("singer"), req.get("song"))
+                newid = new_version.id
+            else:
+                abort(400)
+        
+        resp = make_response(json.dumps({"id" : newid}))
+        resp.mimetype = "application/json"
+        return resp
     
 @app.route("/version/<version_id>", methods=["PUT", "DELETE"])
 def version(version_id):
-    pass
+    if request.method == "PUT":
+        try:
+            req = json.loads(request.data) # for some reason request.get_json doesn't work
+        except:
+            abort(400)
+        
+        try:
+            LocalVoicesAPI.update_version(version_id, version_json=req.get("version"), singer=req.get("singer"), song=req.get("song"))
+            return "", 204
+        except NotFoundException:
+            abort(404)
+    
+    elif request.method == "DELETE":
+        try:
+            LocalVoicesAPI.delete_version(version_id)
+            return "", 204
+        except NotFoundException:
+            abort(404)
 
 #######################################################################
 

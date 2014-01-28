@@ -199,7 +199,59 @@ class LocalVoicesAPI(object):
         
         # then remove the singer and re-index any related objects
         SongIndex.delete_by_id(song.id)
+    
+    @classmethod
+    def create_version(cls, version_json, singer, song):
+        if version_json is None:
+            return None
         
+        # create the version object and save it to the store
+        version = Version({"version" : version_json})
+        if singer is not None:
+            version.singer = singer
+        if song is not None:
+            version.song = song
+        version.save()
+        
+        # call the indexing process, and index this object and all
+        # related ones
+        VersionIndex.by_id(version.id, cascade=True)
+        
+        return version
+        
+    @classmethod
+    def update_version(cls, version_id, version_json=None, singer=None, song=None):
+        # retrieve and update the version object in the desired way
+        version = Version().get(version_id, links=True)
+        
+        if version is None:
+            raise NotFoundException()
+        
+        if version_json is not None:
+            version.patch_version(version_json, replace_all=True, keep_id=True)
+        if singer is not None:
+            version.singer = singer
+        if song is not None:
+            version.song = song
+        version.save()
+        
+        # call the indexing process, and index this object and all related ones
+        VersionIndex.by_id(version.id, cascade=True)
+        
+        return version
+    
+    @classmethod
+    def delete_version(cls, version_id):
+        version = Version().get(version_id, links=True)
+        
+        if version is None:
+            raise NotFoundException()
+        
+        # remove the version from storage first
+        version.remove()
+        
+        # then remove the singer and re-index any related objects
+        VersionIndex.delete_by_id(version.id)
         
         
         
