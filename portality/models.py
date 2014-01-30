@@ -121,9 +121,9 @@ class Song(LV, dao.SongStoreDAO):
         if relation is not None:
             locobj["relation"] = relation
         if lat is not None:
-            locobj["lat"] = lat
+            locobj["lat"] = float(lat)
         if lon is not None:
-            locobj["lon"] = lon
+            locobj["lon"] = float(lon)
         if name is not None:
             locobj["name"] = name
         if len(locobj.keys()) > 0:
@@ -396,9 +396,9 @@ class Version(LV, dao.VersionStoreDAO):
         if relation is not None:
             locobj["relation"] = relation
         if lat is not None:
-            locobj["lat"] = lat
+            locobj["lat"] = float(lat)
         if lon is not None:
-            locobj["lon"] = lon
+            locobj["lon"] = float(lon)
         if name is not None:
             locobj["name"] = name
         if len(locobj.keys()) > 0:
@@ -619,9 +619,9 @@ class Singer(LV, dao.SingerStoreDAO):
         if relation is not None:
             locobj["relation"] = relation
         if lat is not None:
-            locobj["lat"] = lat
+            locobj["lat"] = float(lat)
         if lon is not None:
-            locobj["lon"] = lon
+            locobj["lon"] = float(lon)
         if name is not None:
             locobj["name"] = name
         if len(locobj.keys()) > 0:
@@ -708,7 +708,7 @@ class LV_Index(object):
     def canonicalise_location(self, locations):
         loc = self._select_location(locations)
         if loc is None: return None
-        cl = {"lat" : loc.get("lat"), "lon" : loc.get("lon")}
+        cl = {"lat" : float(loc.get("lat")), "lon" : float(loc.get("lon"))}
         return cl
     
     def _select_location(self, locations):
@@ -791,15 +791,15 @@ class LV_Index(object):
     
     def expand_date_partial(self, partial):
         try:
-            return datetime.strptime(partial, "%Y").strftime("%Y-%m-%d")
+            return datetime.strptime(partial, "%Y").isoformat().split("T")[0]
         except: pass
         
         try:
-            return datetime.strptime(partial, "%Y-%m").strftime("%Y-%m-%d")
+            return datetime.strptime(partial, "%Y-%m").isoformat().split("T")[0]
         except: pass
         
         try:
-            return datetime.strptime(partial, "%Y-%m-%d").strftime("%Y-%m-%d")
+            return datetime.strptime(partial, "%Y-%m-%d").isoformat().split("T")[0]
         except: pass
         return None
 
@@ -1054,8 +1054,11 @@ class SongIndex(LV_Index, dao.SongIndexDAO):
         if song is None:
             return
         
+        print song.data
+        
         # generate the singer index
         si = SongIndex.from_song(song)
+        print si.data
         si.save()
         
         if not cascade:
@@ -1079,7 +1082,7 @@ class SongIndex(LV_Index, dao.SongIndexDAO):
         for s in song.songs:
             relsong = Song().get(s, links=True)
             if relsong is not None:
-                ri = SongIndex.from_song(s)
+                ri = SongIndex.from_song(relsong)
                 ri.save()
     
     @classmethod

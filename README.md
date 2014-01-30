@@ -820,7 +820,6 @@ Returns a JSON list of names and singer ids in alphabetical order, with the coun
             }
         ]
     }
-    
 
 ### Auto-Complete API
 
@@ -866,7 +865,7 @@ The structure of the JSON representation is:
     }
 
 * If the "id" field is provided, this will overwrite an existing record with the same identifier
-* If the "singer" field is provided, then the singer metadata will be set as this metadata
+* If the "singer" field is provided, then the singer metadata will be set as this metadata.  Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about singers.
 * If the "versions" field is provided, then the singer will be related to the provided versions
 
 Therefore, you may use this API request in the following ways:
@@ -896,7 +895,7 @@ The structure of the JSON representation is:
         "versions" : [<list of opaque identifiers for versions>]
     }
 
-* If the "singer" field is provided, then the existing singer metadata will overwritten with this metadata
+* If the "singer" field is provided, then the existing singer metadata will overwritten with this metadata. Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about singers.
 * If the "versions" field is provided, then the existing version relationships will be overwritten with these new ones
 
 Therefore, you may use this API request in the following ways:
@@ -938,7 +937,7 @@ The structure of the JSON representation is:
     }
 
 * If the "id" field is provided, this will overwrite an existing record with the same identifier
-* If the "song" field is provided, then the song metadata will be set as this metadata
+* If the "song" field is provided, then the song metadata will be set as this metadata. Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about songs.
 * If the "versions" field is provided, then the song will be related to the provided versions
 * If the "songs" field is provided, then the song will be related to the provided songs
 
@@ -970,7 +969,7 @@ The structure of the JSON representation is:
         "songs" : [<list of opaque identifiers for other songs>]
     }
 
-* If the "song" field is provided, then the song metadata will overwritten with this metadata
+* If the "song" field is provided, then the song metadata will overwritten with this metadata. Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about songs.
 * If the "versions" field is provided, then any existing versions relationships will be overwritten with these new ones
 * If the "songs" field is provided, then any existing song relationships will be overwritten with these new ones
 
@@ -1015,7 +1014,7 @@ The structure of the JSON representation is:
     }
 
 * If the "id" field is provided, this will overwrite an existing record with the same identifier
-* If the "version" field is provided, then the version metadata will be set as this metadata
+* If the "version" field is provided, then the version metadata will be set as this metadata. Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about versions.
 * If the "song" field is provided, then the version will be related to the provided song
 * If the "singer" field is provided, then the version will be related to the provided singer
 
@@ -1048,7 +1047,7 @@ The structure of the JSON representation is:
         "singer" : "<opaque identifier of singer this was performed by>"
     }
 
-* If the "version" field is provided, then the version metadata will be overwritten with this metadata
+* If the "version" field is provided, then the version metadata will be overwritten with this metadata. Note that this must be as per the storage model, NOT as per the index model.  That is, only post the data about versions.
 * If the "song" field is provided, then the version will be related to the provided song
 * If the "singer" field is provided, then the song will be related to the provided singer
 

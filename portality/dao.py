@@ -99,7 +99,9 @@ class SongStoreDAO(LV_DAO):
         
         if links:
             song_query = esprit.models.Query.term_filter("song_ids.exact", id)
+            song_query["size"] = 10000 # a suitably large number
             version_query = esprit.models.Query.term_filter("song_id.exact", id)
+            version_query["size"] = 10000 # a suitably large number
             
             song_resp = esprit.raw.search(conn, "song2song", song_query)
             song_links = esprit.raw.unpack_result(song_resp)
@@ -132,7 +134,7 @@ class SongStoreDAO(LV_DAO):
         
         return objects
 
-    def save(self, host=None, port=None, index=None, refresh=False):
+    def save(self, host=None, port=None, index=None, refresh=True):
         # can we proceed with storage?
         song = self.data.get("song")
         if song is None:
@@ -234,9 +236,9 @@ class SongStoreDAO(LV_DAO):
         self.actions(conn, action_queue)
     
     def get_alternative_titles(self, version_ids, host=None, port=None, index=None):
-        title_docs = VersionStoreDAO().get_fields_for_all(version_ids, fields=["alternative_title.exact", "title.exact"])
-        alts = [t.get("alternative_title.exact") for t in title_docs if t is not None and t.get("alternative_title.exact") is not None]
-        titles = [t.get("title.exact") for t in title_docs if t is not None and t.get("title.exact") is not None]
+        title_docs = VersionStoreDAO().get_fields_for_all(version_ids, fields=["alternative_title", "title"], host=host, port=port, index=index)
+        alts = [t.get("alternative_title") for t in title_docs if t is not None and t.get("alternative_title") is not None]
+        titles = [t.get("title") for t in title_docs if t is not None and t.get("title") is not None]
         return list(set(alts + titles))
     
 class VersionStoreDAO(LV_DAO):
@@ -304,7 +306,7 @@ class VersionStoreDAO(LV_DAO):
         
         return objects
 
-    def save(self, host=None, port=None, index=None, refresh=False):
+    def save(self, host=None, port=None, index=None, refresh=True):
         # can we proceed with storage?
         version = self.data.get("version")
         if version is None:
@@ -420,6 +422,7 @@ class SingerStoreDAO(LV_DAO):
         
         if links:
             version_query = esprit.models.Query.term_filter("singer_id.exact", id)
+            version_query["size"] = 10000 # a suitably large number
             version_resp = esprit.raw.search(conn, "singer2version", version_query)
             version_links = esprit.raw.unpack_result(version_resp)
             
@@ -428,7 +431,7 @@ class SingerStoreDAO(LV_DAO):
         
         return obj
 
-    def save(self, host=None, port=None, index=None, refresh=False):
+    def save(self, host=None, port=None, index=None, refresh=True):
         # can we proceed with storage?
         singer = self.data.get("singer")
         if singer is None:
@@ -624,10 +627,10 @@ class SearchQuery(object):
         
         if self.box is not None:
             b = deepcopy(self._geo_bounding_box)
-            b["top_left"]["lat"] = self.box['from_lat']
-            b["top_left"]["lon"] = self.box['from_lon']
-            b["bottom_right"]["lat"] = self.box['to_lat']
-            b["bottom_right"]["lon"] = self.box['to_lon']
+            b["top_left"]["lat"] = float(self.box['from_lat'])
+            b["top_left"]["lon"] = float(self.box['from_lon'])
+            b["bottom_right"]["lat"] = float(self.box['to_lat'])
+            b["bottom_right"]["lon"] = float(self.box['to_lon'])
             gbb = deepcopy(self._geo_bounding_box_container)
             gbb["geo_bounding_box"]["canonical_location"] = b
             

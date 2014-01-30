@@ -178,6 +178,7 @@ class LocalVoicesAPI(object):
         song.save()
         
         # call the indexing process, and index this object and all related ones
+        print song.id
         SongIndex.by_id(song.id, cascade=True)
         
         return song
