@@ -1,0 +1,3 @@
+[submodule "esprit"]
+	path = esprit
+	url = git@github.com:richard-jones/esprit.git
