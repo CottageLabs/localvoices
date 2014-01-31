@@ -38,6 +38,18 @@ def standard_authentication():
                 login_user(user, remember=False)
 '''
 
+def jsonp(f):
+    """Wraps JSONified output for JSONP"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        callback = request.args.get('callback', False)
+        if callback:
+            content = str(callback) + '(' + str(f(*args,**kwargs).data) + ')'
+            return current_app.response_class(content, mimetype='application/javascript')
+        else:
+            return f(*args, **kwargs)
+    return decorated_function
+
 #######################################################################
 # API endpoints for Local Voices
 #######################################################################
@@ -47,6 +59,7 @@ def root():
     return make_response("Local Voices API")
 
 @app.route("/search")
+@jsonp
 def search():
     """
     from_lat - upper-most latitude for search results
@@ -84,6 +97,7 @@ def search():
     return resp
     
 @app.route("/singers", methods=["GET", "POST"])
+@jsonp
 def singers():
     if request.method == "GET":
         from_param = request.values.get("from", 0)
@@ -125,6 +139,7 @@ def singers():
         
 
 @app.route("/singer/<singer_id>", methods=["GET", "PUT", "DELETE"])
+@jsonp
 def singer(singer_id):
     if request.method == "GET":
         try:
@@ -155,6 +170,7 @@ def singer(singer_id):
             abort(404)
         
 @app.route("/songs", methods=["POST"])
+@jsonp
 def songs():
     if request.method == "POST":
         try:
@@ -183,6 +199,7 @@ def songs():
         return resp
 
 @app.route("/song/<song_id>", methods=["GET", "PUT", "DELETE"])
+@jsonp
 def song(song_id):
     if request.method == "GET":
         try:
@@ -213,6 +230,7 @@ def song(song_id):
             abort(404)
 
 @app.route("/versions", methods=["POST"])
+@jsonp
 def versions():
     if request.method == "POST":
         try:
@@ -241,6 +259,7 @@ def versions():
         return resp
     
 @app.route("/version/<version_id>", methods=["PUT", "DELETE"])
+@jsonp
 def version(version_id):
     if request.method == "PUT":
         try:

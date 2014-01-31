@@ -1,5 +1,46 @@
 # Local Voices
 
+## Installation
+
+Clone this repository from here
+
+    git clone git@github.com:CottageLabs/localvoices.git
+
+Once you've got it, you will need to update the submodules on which it depends.  Go into the localvoices directory you just cloned, then:
+
+    git submodule init
+    git submodule update
+
+You probably want to run this in a virtual environment, so make one in a suitable location and activate it:
+
+    virtualenv --no-site-packages lv
+    source lv/bin/activate
+
+Install the application; got into the localvoices/esprit directory:
+
+    pip install -e .
+
+Go up a level to the root localvoices directory:
+
+    pip install -e .
+
+We also need to install and start [Elasticsearch](http://elasticsearch.org), which can be done with a binary like this one (we require > 0.90):
+
+    wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.10.tar.gz
+    tar -zxvf elasticsearch-0.90.10.tar.gz
+    cd elasticsearch-0.90.10/bin
+    ./elasticsearch
+
+Now start the localvoices application, from the localvoices directory
+
+    python portality/app.py
+
+If you want to pre-load the test data, you can then do
+
+    python test/loadfromcsv.py
+
+You should now be able to access the API as defined in the technical specification below.
+
 ## Search Requirements
 
 From an API point of view, the following search operations are required:
