@@ -1,5 +1,6 @@
 from flask import Flask, request, abort, render_template, make_response
 from flask.views import View
+from functools import wraps
 # from flask.ext.login import login_user, current_user
 import json
 
