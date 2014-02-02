@@ -57,7 +57,7 @@ def jsonp(f):
 
 @app.route("/")
 def root():
-    return make_response("Local Voices API")
+    return render_template("index.html")
 
 @app.route("/search")
 @jsonp
