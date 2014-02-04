@@ -71,6 +71,13 @@ class LocalVoicesAPI(object):
         return song.raw
     
     @classmethod
+    def get_version(cls, version_id):
+        version = VersionIndex.pull(version_id)
+        if version is None:
+            raise NotFoundException()
+        return version.raw
+    
+    @classmethod
     def list_singers(cls, fr=0, size=-1, initial_letters=None, order="asc"):
         # construct the list query
         q = ListSingersQuery()

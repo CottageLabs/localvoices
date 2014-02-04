@@ -1,4 +1,4 @@
-from flask import Flask, request, abort, render_template, make_response
+from flask import Flask, request, abort, render_template, make_response, current_app
 from flask.views import View
 from functools import wraps
 # from flask.ext.login import login_user, current_user
@@ -45,7 +45,13 @@ def jsonp(f):
     def decorated_function(*args, **kwargs):
         callback = request.args.get('callback', False)
         if callback:
-            content = str(callback) + '(' + str(f(*args,**kwargs).data) + ')'
+            res = f(*args,**kwargs)
+            toreturn = res
+            if isinstance(res, tuple):
+                res = res[0]
+            if hasattr(res, "data"):
+                res = res.data
+            content = str(callback) + '(' + str(res) + ')'
             return current_app.response_class(content, mimetype='application/javascript')
         else:
             return f(*args, **kwargs)
@@ -86,6 +92,8 @@ def search():
     
     # break down the comma-delimited string of query types
     types = [t.strip() for t in type.split(",")] if type is not None else None
+    
+    print types
     
     # ask the API to calculate the answer
     result = LocalVoicesAPI.search(from_lat=from_lat, to_lat=to_lat, from_lon=from_lon, 
@@ -259,10 +267,19 @@ def versions():
         resp.mimetype = "application/json"
         return resp
     
-@app.route("/version/<version_id>", methods=["PUT", "DELETE"])
+@app.route("/version/<version_id>", methods=["GET", "PUT", "DELETE"])
 @jsonp
 def version(version_id):
-    if request.method == "PUT":
+    if request.method == "GET":
+        try:
+            s = LocalVoicesAPI.get_version(version_id)
+            resp = make_response(json.dumps(s))
+            resp.mimetype = "application/json"
+            return resp
+        except NotFoundException:
+            abort(404)
+            
+    elif request.method == "PUT":
         try:
             req = json.loads(request.data) # for some reason request.get_json doesn't work
         except:

@@ -767,9 +767,7 @@ class LV_Index(object):
         first = name_object.get("first", "")
         middle = name_object.get("middle", "")
         last = name_object.get("last", "")
-        if middle != "": first += " "
-        if last != "": middle += " "
-        name = last + middle + first
+        name = " ".join([last, middle, first])
         name = self._normalise_name_string(name)
         if name != "":
             return name

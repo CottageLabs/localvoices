@@ -116,7 +116,7 @@ Returns:
         "biography" : "<biographical summary>",
         "photo_url" : "<url for singer's photo>",
         "source" : "<source of information about this singer>",
-        "songs" : [<opaque identifiers of song versions>]
+        "versions" : [<opaque identifiers of song versions>]
         "created_date" : "<created date>",
         "last_updated" : "<last updated date>"
     }
@@ -130,7 +130,7 @@ Returns:
 * born - date the singer was born.  May be a date fragment (e.g. just the year)
 * died - date the singer died (if relevant).  May be a date fragment (e.g. just the year)
 * biography - free text biographical information
-* songs - the list of song versions performed by this singer
+* versions - the list of song versions performed by this singer
 * created_date - a timestamp, system assigned, for the moment the record was created
 * last_updated - a timestamp, system assigned, for the last time the record was updated
 
@@ -836,7 +836,15 @@ This returns a full JSON representation of the singer, including all of the song
 
 This returns a full JSON representation of the song, including all of the song variations, as held in the index (not the store)
 
-**4/ List the singers alphabetically**
+**4/ Retrieve full details about a song**
+
+    GET /version/<id>
+    
+* id - the system's internal identifier for the version
+
+This returns a full JSON representation of the version, including the related song and singer, as held in the index (not the store)
+
+**5/ List the singers alphabetically**
 
     GET /singers?<params>
 
