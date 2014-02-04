@@ -39,7 +39,20 @@ If you want to pre-load the test data, you can then do
 
     python test/loadfromcsv.py
 
-You should now be able to access the API as defined in the technical specification below.
+You should now be able to access the API as defined in the technical specification below, or explore the data through the primitive javascript UI provided (described in the next section)
+
+## Example UI
+
+At the moment, the application is provided with a JavaScript driven UI which provides primitive access to the datastore.  There are two main components to this:
+
+    portality/static/js/localvoices.js
+    
+This is a full client library which provides API access to the Local Voices service and basic forms for creating and editing songs, singers and versions.  The forms provided are complete but not necessarily particularly pleasing to the eye, so it is anticipated that they will be replaced and/or styled further during UI development.
+
+    portality/templates/index.html
+    portality/static/js/examples.js
+
+This is a set of HTML layouts (using [Jinja2](http://jinja.pocoo.org/)), and [jQuery](http://jquery.com/) functions/event handlers providing basic behaviour to the UI.  Each part of the UI implements a thin wrapper around the REST API calls documented further down.  So, code in examples.js should be considered just a demonstration as to how to bind the components build during UI development with the localvoices.js function calls.
 
 ## Search Requirements
 
