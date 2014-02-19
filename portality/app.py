@@ -178,10 +178,22 @@ def singer(singer_id):
         except NotFoundException:
             abort(404)
         
-@app.route("/songs", methods=["POST"])
+@app.route("/songs", methods=["GET", "POST"])
 @jsonp
 def songs():
-    if request.method == "POST":
+    if request.method == "GET":
+        from_param = request.values.get("from", 0)
+        size = request.values.get("size", 50)
+        letter = request.values.get("letter")
+        
+        result = LocalVoicesAPI.list_songs(fr=from_param, size=size, initial_letters=letter, order="asc")
+        
+        # return a json response
+        resp = make_response(json.dumps(result.as_dict()))
+        resp.mimetype = "application/json"
+        return resp
+    
+    elif request.method == "POST":
         try:
             req = json.loads(request.data) # for some reason request.get_json doesn't work
         except:

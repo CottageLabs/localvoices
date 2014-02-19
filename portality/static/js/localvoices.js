@@ -154,6 +154,47 @@ function listSingers(params) {
     })
 }
 
+// listSongs - retrieve an alphabetically ordered list of songs
+//
+// parameters:
+//letter - initial letter to list
+//from - the result number to commence listing from. Defaults to 0, and is used for result set paging
+//size - the size of the result set, and can be used to determine the "from" value for the next request when paging
+//success - function to execute on returned data
+//error - function to execute in the case of error
+
+function listSongs(params) {
+    // extract all the parameters
+    var letter = params.letter
+    var from = params.from
+    var size = params.size
+    var success_callback = params.success
+    var error_callback = params.error
+    
+    if (!success_callback) {
+        success_callback = function() {}
+    }
+    if (!error_callback) {
+        error_callback = function() {}
+    }
+    
+    // build the request object based on the parameters
+    var obj = {}
+    if (letter) { obj["letter"] = letter }
+    if (from) {obj["from"] = from}
+    if (size) {obj["size"] = size}
+    
+    // now make the ajax request
+    $.ajax({
+        type: "GET",
+        url: "/songs",
+        dataType: "jsonp",
+        data: obj,
+        success: success_callback,
+        error: error_callback
+    })
+}
+
 // doSave - save the LV object to the datastore
 //
 // parameters:

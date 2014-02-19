@@ -122,6 +122,7 @@ jQuery(document).ready(function($) {
         var letter = form.find("select[name=letter]").val()
         var from = form.find("input[name=from]").val()
         var size = form.find("input[name=size]").val()
+        var type = form.find("select[name=list_type]").val()
         
         // build the parameters for the list call
         var params = {}
@@ -133,15 +134,20 @@ jQuery(document).ready(function($) {
         if (from) {params["from"] = from}
         if (size) {params["size"] = size}
         
+        var count_of = "songs"
+        if (type === "song") {
+            count_of = "versions"
+        }
+        
         params["success"] = function(data) {
             var frag = "<ul>"
             if (data.results) {
                 for (var i = 0; i < data.results.length; i++) {
                     var res = data.results[i]
-                    var name = res.canonical_name
+                    var name = res.canonical_name ? res.canonical_name : res.title
                     var count = res.version_count
                     var id = res.id
-                    frag += "<li><strong>" + name + "</strong> (" + count + " songs) - " + id + "</li>"
+                    frag += "<li><strong>" + name + "</strong> (" + count + " " + count_of + ") - " + id + "</li>"
                 }
             }
             frag += "</ul>"
@@ -153,7 +159,11 @@ jQuery(document).ready(function($) {
         }
         
         // do the list (which will in turn call the callback functions)
-        listSingers(params)
+        if (type === "singer") {
+            listSingers(params)
+        } else if (type === "song") {
+            listSongs(params)
+        }
     });
     
     //////////////////////////////////////////////////////////

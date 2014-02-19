@@ -1,4 +1,4 @@
-from portality.dao import SearchQuery, ListSingersQuery, Search
+from portality.dao import SearchQuery, ListSingersQuery, ListSongsQuery, Search
 from portality.models import SingerIndex, SongIndex, VersionIndex, Singer, Song, Version
 
 class SearchResult(object):
@@ -97,6 +97,29 @@ class LocalVoicesAPI(object):
             q.set_order("asc")
         
         result_objects, total = Search().search("singer", q.query(), transpose_type=False)
+        sr = SearchResult(result_objects, fr, size, total)
+        return sr
+    
+    @classmethod
+    def list_songs(cls, fr=0, size=-1, initial_letters=None, order="asc"):
+        # construct the list query
+        q = ListSongsQuery()
+        q.set_from(fr)
+        
+        if size == -1:
+            q.all_results()
+        else:
+            q.set_size(size)
+        
+        if initial_letters is not None:
+            q.set_initial_letters(initial_letters)
+        
+        if order.lower() in ["asc", "desc"]:
+            q.set_order(order.lower())
+        else:
+            q.set_order("asc")
+        
+        result_objects, total = Search().search("song", q.query(), transpose_type=False)
         sr = SearchResult(result_objects, fr, size, total)
         return sr
     

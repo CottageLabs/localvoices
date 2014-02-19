@@ -768,12 +768,18 @@ class LV_Index(object):
         middle = name_object.get("middle", "")
         last = name_object.get("last", "")
         name = " ".join([last, middle, first])
-        name = self._normalise_name_string(name)
+        name = self._normalise_string(name)
         if name != "":
             return name
         return None
     
-    def _normalise_name_string(self, s):
+    def order_by_title(self, title):
+        title = self._normalise_string(title)
+        if title != "":
+            return title
+        return None
+    
+    def _normalise_string(self, s):
         if type(s) == "str":
             s = s.translate(string.maketrans("",""), string.punctuation)
         elif type(s) == "unicode":
@@ -1117,6 +1123,11 @@ class SongIndex(LV_Index, dao.SongIndexDAO):
             cl = si.canonicalise_location(loc)
             if cl is not None:
                 si.data["canonical_location"] = cl
+        
+        # sort out the order_by_name field for alphabetical sorting
+        if song.title is not None:
+            order_by = si.order_by_title(song.title)
+            si.data["order_by_title"] = order_by
         
         # attach basic metadata about all the related songs
         related_song_ids = song.data.get("songs")

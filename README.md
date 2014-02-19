@@ -101,6 +101,11 @@ Returns:
 Returns:
 * A list of singers
 
+**7/ List all songs alphabetically**
+
+Returns:
+* A list of songs
+
 ## Data Model
 
 ### Singer
@@ -415,6 +420,7 @@ Documents held in the Song2Song link table will have the following form:
         "created_date" : "<created date>",
         "last_updated" : "<last updated date>",
         
+        "order_by_title" : "<title used for sorting>",
         "canonical_location" : {
             "lat" : "<canonical latitude for the song>",
             "lon" : "<canonical longitude for the song>",
@@ -878,6 +884,32 @@ Returns a JSON list of names and singer ids in alphabetical order, with the coun
             {
                 "id" : "<opaque internal identifier for singer>",
                 "name" : "<canonical version of singer's name>",
+                "version_count" : "<count of the number of song versions associated>"
+            }
+        ]
+    }
+
+**6/ List the songs alphabetically**
+
+    GET /songs?<params>
+
+The following URL params are permitted:
+
+* from - the result number to commence listing from.  Defaults to 0, and is used for result set paging
+* size - the size of the result set, and can be used to determine the "from" value for the next request when paging
+* letter - the specific letter the singer's name should start with
+
+Returns a JSON list of names and song ids in alphabetical order, with the count of the song versions associated, along with associated paging information
+
+    {
+        "from" : "<position of cursor in result set>",
+        "size" : "<requested number of records>",
+        "count" : "<number of records actually returned on this page>",
+        "total" : "<total number of results to the query (including those not listed on this page)>",
+        "results" : [
+            {
+                "id" : "<opaque internal identifier for song>",
+                "name" : "<canonical version of song>",
                 "version_count" : "<count of the number of song versions associated>"
             }
         ]
