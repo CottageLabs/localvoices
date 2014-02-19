@@ -219,20 +219,20 @@ jQuery(document).ready(function($) {
         var id = form.find("input[name=id]").val()
         
         if (type === "singer") {
-            function retrieve_error() { alert("error retrieving") }
-            function retrieve_success(data) {
+            function retrieve_singer_error() { alert("error retrieving") }
+            function retrieve_singer_success(data) {
                 var update_form = renderSingerForm({singer: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_error() { alert("error saving") }
-                function save_success(data) { alert("saved id " + id) }
+                function save_singer_error() { alert("error saving") }
+                function save_singer_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_singer]").click(function(event) {
                     event.preventDefault()
                     saveSingerFromForm({
                         form_selector: "form[name=singer_form]",
-                        error: save_error,
-                        success: save_success
+                        error: save_singer_error,
+                        success: save_singer_success
                     })
                 });
             }
@@ -240,25 +240,25 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "singer",
                 id: id,
-                error: retrieve_error,
-                success: retrieve_success
+                error: retrieve_singer_error,
+                success: retrieve_singer_success
             })
             
         } else if (type === "song") {
-            function retrieve_error() { alert("error retrieving") }
-            function retrieve_success(data) {
+            function retrieve_song_error() { alert("error retrieving") }
+            function retrieve_song_success(data) {
                 var update_form = renderSongForm({song: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_error() { alert("error saving") }
-                function save_success(data) { alert("saved id " + id) }
+                function save_song_error() { alert("error saving") }
+                function save_song_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_song]").click(function(event) {
                     event.preventDefault()
                     saveSongFromForm({
                         form_selector: "form[name=song_form]",
-                        error: save_error,
-                        success: save_success
+                        error: save_song_error,
+                        success: save_song_success
                     })
                 });
             }
@@ -266,25 +266,25 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "song",
                 id: id,
-                error: retrieve_error,
-                success: retrieve_success
+                error: retrieve_song_error,
+                success: retrieve_song_success
             })
             
         } else if (type === "version") {
-            function retrieve_error() { alert("error retrieving") }
-            function retrieve_success(data) {
+            function retrieve_version_error() { alert("error retrieving") }
+            function retrieve_version_success(data) {
                 var update_form = renderVersionForm({version: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_error() { alert("error saving") }
-                function save_success(data) { alert("saved id " + id) }
+                function save_version_error() { alert("error saving") }
+                function save_version_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_version]").click(function(event) {
                     event.preventDefault()
                     saveVersionFromForm({
                         form_selector: "form[name=version_form]",
-                        error: save_error,
-                        success: save_success
+                        error: save_version_error,
+                        success: save_version_success
                     })
                 });
             }
@@ -292,8 +292,8 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "version",
                 id: id,
-                error: retrieve_error,
-                success: retrieve_success
+                error: retrieve_version_error,
+                success: retrieve_version_success
             })
         }
     })
