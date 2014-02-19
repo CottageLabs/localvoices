@@ -23,7 +23,7 @@ class NotFoundException(Exception):
 class LocalVoicesAPI(object):
     
     @classmethod
-    def search(cls, types, from_lat=None, to_lat=None, from_lon=None, to_lon=None, place=None, query_string=None, from_number=0, page_size=25):
+    def search(cls, types, from_lat=None, to_lat=None, from_lon=None, to_lon=None, place=None, query_string=None, from_number=0, page_size=25, all_info=False):
         """
         types - one or more of "singer", "song", "version" in a list
         from_lat - upper-most latitude for search results
@@ -34,6 +34,7 @@ class LocalVoicesAPI(object):
         query_string - free-text query string
         from_number - result number to start from
         page_size - number of results to return
+        all_info - return max information or not (default to false)
         """
         
         # sanitise the types
@@ -51,6 +52,11 @@ class LocalVoicesAPI(object):
             q.from_number(from_number)
         if page_size is not None:
             q.page_size(page_size)
+        if not all_info:
+            q.add_field("title")
+            q.add_field("id")
+            q.add_field("canonical_location")
+            q.add_field("canonical_name")
         
         result_objects, total = Search().search(types, q.query())
         sr = SearchResult(result_objects, from_number, page_size, total)

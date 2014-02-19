@@ -18,6 +18,7 @@ jQuery(document).ready(function($) {
         var types = form.find("input[name=types]").val()
         var from = form.find("input[name=from]").val()
         var size = form.find("input[name=size]").val()
+        var all_info = form.find("input[name=all_info]").is(":checked")
         
         // build the parameters for the search API call
         var params = {}
@@ -30,6 +31,7 @@ jQuery(document).ready(function($) {
         if (types) { params["types"] = types }
         if (from) { params["from"] = from }
         if (size) { params["size"] = size }
+        params["max"] = all_info // will be set and will be true or false
         
         // add our callback functions
         params["success"] = function(data) {
@@ -42,13 +44,18 @@ jQuery(document).ready(function($) {
                     var id = res.id
                     var canonical_name = res.canonical_name
                     
+                    var min_max = "minimal record"
+                    if (res.lv_id) {
+                        min_max = "full record"
+                    }
+                    
                     frag += "<li>"
                     if (title) {
                         frag += title
                     } else if (canonical_name) {
                         frag += canonical_name
                     }
-                    frag += " (" + type + ") - " + id + "</li>"
+                    frag += " (" + type + ") - " + id + " [" + min_max + "]</li>"
                 }
             }
             frag += "</ul>"

@@ -78,6 +78,7 @@ def search():
     type - one or more of "singer", "song", "version" as a comma-delimitted list
     from - result number to start from
     size - page size to return
+    max - return max information or not (default to false)
     """
     # extract the parameters from the query string
     from_lat = request.values.get("from_lat")
@@ -89,6 +90,11 @@ def search():
     type = request.values.get("type")
     fr = request.values.get("from", 0)
     size = request.values.get("size", 25)
+    all_info = request.values.get("max", False)
+    
+    # normalise all_info
+    if all_info:
+        all_info = all_info.lower().strip() == "true"
     
     # break down the comma-delimited string of query types
     types = [t.strip() for t in type.split(",")] if type is not None else None
@@ -98,7 +104,7 @@ def search():
     # ask the API to calculate the answer
     result = LocalVoicesAPI.search(from_lat=from_lat, to_lat=to_lat, from_lon=from_lon, 
                                     to_lon=to_lon, place=place, query_string=q, types=types,
-                                    from_number=fr, page_size=size)
+                                    from_number=fr, page_size=size, all_info=all_info)
     
     # return a json response
     resp = make_response(json.dumps(result.as_dict()))

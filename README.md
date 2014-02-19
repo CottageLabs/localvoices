@@ -819,6 +819,7 @@ The following URL params are permitted
 * type - one or more of "singer", "song", "version" as a comma-delimitted list
 * from - the result number to commence listing from.  Defaults to 0, and is used for result set paging
 * size - the size of the result set, and can be used to determine the "from" value for the next request when paging
+* max - true/false to return all of the information about every object.  Defaults to false.  If True, will return just song title, id, and geo-location
 
 This returns full JSON representations of the objects that match, as held in the index (not the store), along with paging information
 

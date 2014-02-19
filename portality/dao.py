@@ -546,7 +546,7 @@ class Search(LV_DAO):
             # the different kinds of objects
             j = resp.json()
             for i in j.get('hits', {}).get('hits', []):
-                record = i.get("_source", {})
+                record = i.get("_source", {}) if "_source" in i else i.get("fields", {})
                 t = i.get("_type")
                 record["_type"] = t
                 records.append(record)
@@ -595,6 +595,7 @@ class SearchQuery(object):
         self.text_analysed = None
         self._from_number = 0
         self._page_size = 25
+        self.fields = []
 
     def bounding_box(self, from_lat, to_lat, from_lon, to_lon):
         if self.box is None:
@@ -617,6 +618,9 @@ class SearchQuery(object):
     
     def page_size(self, size):
         self._page_size = size
+    
+    def add_field(self, field):
+        self.fields.append(field)
     
     def query(self):
         q = deepcopy(self._filtered_query)
@@ -654,6 +658,9 @@ class SearchQuery(object):
         
         if self._page_size is not None:
             q["size"] = self._page_size
+        
+        if len(self.fields) > 0:
+            q["fields"] = self.fields
         
         return q
     

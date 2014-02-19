@@ -29,6 +29,7 @@ function doSearch(params) {
     var types = params.types
     var from = params.from
     var size = params.size
+    var all_info = params["max"]
     var success_callback = params.success
     var error_callback = params.error
     
@@ -54,6 +55,7 @@ function doSearch(params) {
     
     if (from) {obj["from"] = from}
     if (size) {obj["size"] = size}
+    obj["max"] = all_info
     
     if (!success_callback) {
         success_callback = function() {}
