@@ -821,7 +821,7 @@ The following URL params are permitted
 * size - the size of the result set, and can be used to determine the "from" value for the next request when paging
 * max - true/false to return all of the information about every object.  Defaults to false.  If True, will return just song title, id, and geo-location
 
-This returns full JSON representations of the objects that match, as held in the index (not the store), along with paging information
+This returns JSON representations of the objects that match, along with paging information
 
     {
         "from" : "<position of cursor in result set>",
@@ -832,7 +832,16 @@ This returns full JSON representations of the objects that match, as held in the
             <results ordered by relevance>
         ]
     }
-    
+
+If max is set to True you will receive the full object as it appears in the index layer.  If max is set to False, you will receive the following information, depending on the result object type:
+
+* id (all types)
+* title (song and version)
+* canonical_location (all types)
+* canonical_name (singer)
+* singer.id (version)
+* singer.canonical_name (version)
+
 Note also that in this API, each result will contain an "_type" element with one of "song", "singer", "version", as search may operate across all types, and the user of the API will need to be able to distinguish between the object types.  For example
 
     {

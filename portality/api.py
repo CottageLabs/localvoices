@@ -57,6 +57,8 @@ class LocalVoicesAPI(object):
             q.add_field("id")
             q.add_field("canonical_location")
             q.add_field("canonical_name")
+            q.add_field("singer.id")
+            q.add_field("singer.canonical_name")
         
         result_objects, total = Search().search(types, q.query())
         sr = SearchResult(result_objects, from_number, page_size, total)
