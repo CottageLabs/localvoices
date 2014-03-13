@@ -43,6 +43,7 @@ jQuery(document).ready(function($) {
                     var title = res.title
                     var id = res.id
                     var canonical_name = res.canonical_name
+                    var loc = res.canonical_location
                     
                     var min_max = "minimal record"
                     if (res.lv_id) {
@@ -55,7 +56,7 @@ jQuery(document).ready(function($) {
                     } else if (canonical_name) {
                         frag += canonical_name
                     }
-                    frag += " (" + type + ") - " + id + " [" + min_max + "]</li>"
+                    frag += " (" + type + ") [" + loc.lat + ", " + loc.lon + "] - " + id + " [" + min_max + "]</li>"
                 }
             }
             frag += "</ul>"
