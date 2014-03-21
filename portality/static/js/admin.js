@@ -1,5 +1,99 @@
 jQuery(document).ready(function($) {
 
+	//Google Map -------------------------------------------------------------//
+
+	function initialize() {
+		var markers = [];
+		var map = new google.maps.Map(document.getElementById('admin-map'), {
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		});
+		var defaultBounds = new google.maps.LatLngBounds(
+		new google.maps.LatLng(59.2995517, -9.6240234), new google.maps.LatLng(55.6031782, -0.0878906));
+		map.fitBounds(defaultBounds);
+		// Create the search box and link it to the UI element.
+		var input = /** @type {HTMLInputElement} */
+		(
+		document.getElementById('pac-input'));
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+		var searchBox = new google.maps.places.SearchBox( /** @type {HTMLInputElement} */ (input));
+		
+				//move checkbox html items onto map
+		var checkbox_singer = (
+		document.getElementById('singer-pins-check-container'));
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(checkbox_singer);
+		var checkbox_song = (
+		document.getElementById('song-pins-check-container'));
+		map.controls[google.maps.ControlPosition.TOP_LEFT].push(checkbox_song);
+		
+		
+		// [START region_getplaces]
+		// Listen for the event fired when the user selects an item from the
+		// pick list. Retrieve the matching places for that item.
+		google.maps.event.addListener(searchBox, 'places_changed', function() {
+			var places = searchBox.getPlaces();
+			for (var i = 0, marker; marker = markers[i]; i++) {
+				marker.setMap(null);
+
+			}
+			// For each place, get the icon, place name, and location.
+			markers = [];
+			var bounds = new google.maps.LatLngBounds();
+			for (var i = 0, place; place = places[i]; i++) {
+				var image = {
+					url: place.icon,
+					size: new google.maps.Size(71, 71),
+					origin: new google.maps.Point(0, 0),
+					anchor: new google.maps.Point(17, 34),
+					scaledSize: new google.maps.Size(20, 20)
+				};
+				// Create a marker for each place.
+				var marker = new google.maps.Marker({
+					map: map,
+					icon: image,
+					title: place.name,
+					position: place.geometry.location
+				});
+				markers.push(marker);
+				bounds.extend(place.geometry.location);
+				map.setZoom(11);
+				
+				var click_lat = place.geometry.location.lat();
+                var click_lng = place.geometry.location.lng();
+	            
+	            addItem(click_lat, click_lng)
+			}
+			map.fitBounds(bounds);
+
+		});
+		// [END region_getplaces]
+		// Bias the SearchBox results towards places that are within the bounds of the
+		// current map's viewport.
+		google.maps.event.addListener(map, 'bounds_changed', function() {
+			var bounds = map.getBounds();
+			searchBox.setBounds(bounds);
+		});
+
+
+// add a click event handler to the map object
+            google.maps.event.addListener(map, "click", function(event)
+            { 
+                   //Adlocation to form
+	            var click_lat = event.latLng.lat();
+                var click_lng = event.latLng.lng();
+	            
+	            addItem(click_lat, click_lng)
+            });
+            
+            function addItem(lat, lng){
+	$("#current_lon").val(lng);
+	$("#current_lat").val(lat);
+
+}
+	}
+	//load map	
+	google.maps.event.addDomListener(window, 'load', initialize);
+
+
     //////////////////////////////////////////////////////////
     // EXAMPLE SEARCH
     //////////////////////////////////////////////////////////
@@ -43,7 +137,6 @@ jQuery(document).ready(function($) {
                     var title = res.title
                     var id = res.id
                     var canonical_name = res.canonical_name
-                    var loc = res.canonical_location
                     
                     var min_max = "minimal record"
                     if (res.lv_id) {
@@ -56,7 +149,7 @@ jQuery(document).ready(function($) {
                     } else if (canonical_name) {
                         frag += canonical_name
                     }
-                    frag += " (" + type + ") [" + loc.lat + ", " + loc.lon + "] - " + id + " [" + min_max + "]</li>"
+                    frag += " (" + type + ") - " + id + " [" + min_max + "]</li>"
                 }
             }
             frag += "</ul>"
@@ -189,6 +282,10 @@ jQuery(document).ready(function($) {
         if (type === "singer") {
             var create_form = renderSingerForm()
             $("#create_example_form").html(create_form)
+            var lng = $("#current_lon").val();
+             var lat = $("#current_lat").val();
+            $("input[name=lat]").val(lat);
+            $("input[name=lon]").val(lng);
             
             $("button[name=submit_singer]").click(function(event) {
                 event.preventDefault()
@@ -202,6 +299,11 @@ jQuery(document).ready(function($) {
         } else if (type === "song") {
             var create_form = renderSongForm()
             $("#create_example_form").html(create_form)
+             var lng = $("#current_lon").val();
+             var lat = $("#current_lat").val();
+            $("input[name=lat]").val(lat);
+            $("input[name=lon]").val(lng);
+            
             
             $("button[name=submit_song]").click(function(event) {
                 event.preventDefault()
@@ -214,7 +316,10 @@ jQuery(document).ready(function($) {
         } else if (type === "version") {
             var create_form = renderVersionForm()
             $("#create_example_form").html(create_form)
-            
+            var lng = $("#current_lon").val();
+             var lat = $("#current_lat").val();
+            $("input[name=lat]").val(lat);
+            $("input[name=lon]").val(lng);
             $("button[name=submit_version]").click(function(event) {
                 event.preventDefault()
                 saveVersionFromForm({

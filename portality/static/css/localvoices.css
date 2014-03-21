@@ -1,0 +1,166 @@
+html {
+	height:100%;
+}
+
+body {
+	height:100%;
+	margin:0;
+	padding:0;
+}
+
+/* Navigation */
+#masthead {
+	height:10%;
+}
+
+#masthead h1 {
+	font-size:1rem;
+	margin-bottom:0;
+	clear:none;
+	display:inline-block;
+	line-height:2rem;
+	margin-left:30px;
+}
+
+#nav li {
+	display:inline-block;
+	list-style:none;
+	padding:0 10px;
+}
+
+#nav {
+	margin:0 0 0 30px;
+	padding:0;
+	text-indent:0;
+}
+
+#main {
+	width:100%;
+	position:relative;
+	height:90%;
+}
+
+#map-canvas {
+	width:100%;
+	height:100%;
+	margin:0 auto;
+}
+
+#admin-map {width: 100%; height: 400px; margin: 0 0 10px;}
+
+#map-canvas img, #admin-map img {
+	max-width:none;
+}
+
+.controls {
+	margin-top:16px;
+	border:1px solid transparent;
+	border-radius:2px 0 0 2px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	height:32px;
+	outline:none;
+	box-shadow:0 2px 6px rgba(0,0,0,0.3);
+}
+
+#pac-input {
+	background-color:#fff;
+	padding:0 11px 0 13px;
+	width:300px;
+	font-family:Roboto;
+	font-size:15px;
+	font-weight:300;
+	text-overflow:ellipsis;
+}
+
+#pac-input:focus {
+	border-color:#4d90fe;
+	margin-left:-1px;
+	padding-left:14px;
+/* Regular padding-left + 1. */
+	width:301px;
+}
+
+.pac-container {
+	font-family:Roboto;
+}
+
+#type-selector {
+	color:#fff;
+	background-color:#4d90fe;
+	padding:5px 11px 0;
+}
+
+#type-selector label {
+	font-family:Roboto;
+	font-size:13px;
+	font-weight:300;
+}
+
+#target {
+	width:400px;
+}
+
+#InfoWindowContent {
+	width:100px;
+	text-align:center;
+}
+
+#singer-pins-check-container,#song-pins-check-container {
+	width:150px;
+	margin-top:20px;
+	font-size:1.5em;
+	margin-left:20px;
+	line-height:1.6em;
+}
+
+#singer-pins-check-container input,#song-pins-check-container input {
+	height:20px;
+	width:20px;
+	float:left;
+	margin-right:10px;
+}
+
+#pop-over-singers,#pop-over-songs,#pop-over-singer,#pop-over-song-detail,#pop-over-search, #sub-pop-over-song-detail {
+	position:absolute;
+	top:1%;
+	left:1%;
+	height:90%;
+	width:40%;
+	background:#fff;
+	padding:10px;
+	display:none;
+	border: 1px solid #ccc;
+} 
+
+#form_advanced_search, #addItem {
+    position:absolute;
+	top:1%;
+	left:1%;
+	min-height:50%;
+	width:80%;
+	background:#fff;
+	padding:10px;
+	display:none;
+	}
+
+#pop-over-singers.view,#pop-over-songs.view, #pop-over-singer.view,#pop-over-song-detail.view, #pop-over-search.view, #sub-pop-over-song-detail.view, #form_advanced_search.view, #addItem.view #pop-over-search.view{
+	display:block;
+}
+
+.admin_link,.home_link {
+	display:block;
+	float:left;
+	padding-left:30px;
+}
+
+#search {
+	position:absolute;
+	top:-50px;
+	right:0;
+	width:30%;
+}
+
+#search input {
+	margin-bottom:0;
+}

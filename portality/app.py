@@ -63,7 +63,17 @@ def jsonp(f):
 
 @app.route("/")
 def root():
-    return render_template("index.html")
+    return render_template("map.html")
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+@app.route("/example")
+def example():
+    return render_template("examples.html")
+    
+    
 
 @app.route("/search")
 @jsonp
