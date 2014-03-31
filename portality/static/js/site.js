@@ -79,6 +79,8 @@ jQuery(document).ready(function($) {
 		params["success"] = function(data) {
 			for (var i = 0; i < data.count; i++) {
 				var dataSinger = data.results[i];
+				
+				if (dataSinger.canonical_location) {
 				// obtain the attribues of each marker
 				var loc = dataSinger.canonical_location
 				var lat = loc.lat
@@ -109,7 +111,7 @@ jQuery(document).ready(function($) {
 				});
 				//add marker array to stack
 				singerStack.push(marker);
-			}
+			}}
 			//load singer markers
 			var mcOptions = {
 				gridSize: 50,
@@ -466,16 +468,29 @@ function renderSingerMod(singer_data) {
 	
 	var loc = singer_data.canonical_location
 	var lat = loc.lat
-	var lng = loc.lon	
+	var lng = loc.lon
+	
 	$( "#site_lng" ).val(lng);
 	$( "#site_lat" ).val(lat).trigger('change');
 	
+	var locs = singer_data.location
+
+
+	
+	if (locs) {
+
+            var area = locs[0]
+
+    }
+
+	var areaName = area.name
 	
 	// build the singer's entry
 	frag += "<div class='row-fluid'><div class='span12'>"
 	frag += "<h2>" + name + "</h2>"
 	frag += "<strong>LV Singer ID: </strong>" + lvid + "<br>"
 	frag += "<strong>Gender: </strong>" + gender + "<br>"
+	frag += "<strong>Native Area: </strong>" + areaName + "<br>"
 	frag += "<strong>Birth, death dates: </strong>" + born + " - " + died
 	// if (bio) {
 	frag += "<h3>Biography</h3><p>" + bio + "</p>"
@@ -551,7 +566,7 @@ function renderSongMod(song_data) {
 				singer = version.singer.canonical_name
 			}
 			frag += "<li class='version' id='" + vid + "'>"
-			frag += "(" + vlvid + ") <strong>" + vtitle + "</strong> by " + singer
+			frag += "(" + vlvid + ") " + vtitle + " by " + singer
 			frag += "</li>"
 		}
 		frag += "</ul></div></div>"
@@ -588,6 +603,22 @@ function renderVersion(song_data) {
 	var url = song_data.media_url
 	var parentTitle = song_data.song['title']
 	var parentID = song_data.song['id']
+	
+	var versionSinger = song_data.singer["canonical_name"]
+	
+	var locs = song_data.singer["location"]
+    
+    // FIXME: only displaying the first location
+    var loc = {location: "", lat : "", lon: "", relation: ""}
+    
+	
+	if (locs) {
+	      var area = locs[0]
+    }
+
+	var versionSingerArea = area.name
+
+	
 	var lvid = song_data.lv_id
 	var sid = song_data.id
 	var alts = song_data.alternative_title
@@ -617,10 +648,14 @@ function renderVersion(song_data) {
 	frag += "<div class='row-fluid'><div class='span12'>"
 	frag += "<h2>" + title + "</h2>"
 	frag += "<strong>LV Version ID: </strong>" + lvid + "<br>"
-	frag += "<strong>Version Title: </strong>" + parentTitle + "<br>"
+	frag += "<strong>Master Song Title: </strong>" + parentTitle + "<br>"
 	if (alts) {
 		frag += "<strong> Alternative title(s): </strong> " + alts.join(" | ") + "<br>"
 	}
+	
+	frag += "<strong>Singer: </strong>" + versionSinger + "<br>"
+	frag += "<strong>Singer Area: </strong>" + versionSingerArea + "<br>"
+	
 	if (summary) {
 		frag += "<strong>Version Summary: </strong><p>" + summary + "</p>"
 	}

@@ -289,11 +289,57 @@ jQuery(document).ready(function($) {
             
             $("button[name=submit_singer]").click(function(event) {
                 event.preventDefault()
+                
+                var submit_form = $("form[name=singer_form]")
+                
+                var alert_msg =""
+                
+                 var test = submit_form.find("input[name=lvid]").val()
+                if ( !test)  {  
+	              alert_msg += "Local Voices ID is a required value.\n"
+              }
+              
+            var test2 = submit_form.find("input[name=last_name]").val()
+                if ( !test2)  {  
+	              alert_msg += "Singer Last Name is a required value. \n"
+              }
+              
+              var test3 = submit_form.find("input[name=first_name]").val()
+                if ( !test3)  {  
+	              alert_msg += "Singer First Name is a required value. \n"
+              }
+
+               var test4 = submit_form.find("input[name=lat]").val()
+                if ( !test4)  {  
+	              alert_msg += "Latitude is a required value. \n"
+              }
+              
+               var test5 = submit_form.find("input[name=lon]").val()
+                if ( !test5)  {  
+	              alert_msg += "Latitude is a required value. \n"
+              }
+
+           
+              
+              
+              
+              if (alert_msg === "")
+             {
                 saveSingerFromForm({
                     form_selector: "form[name=singer_form]",
                     error: error,
                     success: success
                 })
+                
+                }
+                
+                else { 
+                
+                var frag = "Plese fix the following errors:\n\n" + alert_msg;
+                
+                alert(frag);
+	                
+                }
             });
             
         } else if (type === "song") {
@@ -307,11 +353,45 @@ jQuery(document).ready(function($) {
             
             $("button[name=submit_song]").click(function(event) {
                 event.preventDefault()
+                
+                var submit_form = $("form[name=song_form]")
+                
+                var alert_msg =""
+                
+                 var test = submit_form.find("input[name=lvid]").val()
+                if ( !test)  {  
+	              alert_msg += "Local Voices ID is a required value.\n"
+              }
+              
+            var test2 = submit_form.find("input[name=title]").val()
+                if ( !test2)  {  
+	              alert_msg += "Title is a required value. \n"
+              }
+              
+              var test3 = submit_form.find("textarea[name=summary]").val()
+                if ( !test3)  {  
+	              alert_msg += "Summary is a required value. \n"
+              }
+ 
+              if (alert_msg === "")
+             {
+
                 saveSongFromForm({
                     form_selector: "form[name=song_form]",
                     error: error,
                     success: success
                 })
+                
+                }
+                
+                else { 
+                
+                var frag = "Plese fix the following errors:\n\n" + alert_msg;
+                
+                alert(frag);
+	                
+                }
+
             });
         } else if (type === "version") {
             var create_form = renderVersionForm()
@@ -322,11 +402,44 @@ jQuery(document).ready(function($) {
             $("input[name=lon]").val(lng);
             $("button[name=submit_version]").click(function(event) {
                 event.preventDefault()
+                
+                 var submit_form = $("form[name=version_form]")
+                
+                var alert_msg =""
+                
+                 var test = submit_form.find("input[name=lvid]").val()
+                if ( !test)  {  
+	              alert_msg += "Local Voices ID is a required value.\n"
+              }
+              
+            var test2 = submit_form.find("input[name=title]").val()
+                if ( !test2)  {  
+	              alert_msg += "Title is a required value. \n"
+              }
+              
+              var test3 = submit_form.find("textarea[name=summary]").val()
+                if ( !test3)  {  
+	              alert_msg += "Summary is a required value. \n"
+              }
+ 
+              if (alert_msg === "")
+             {
+
                 saveVersionFromForm({
                     form_selector: "form[name=version_form]",
                     error: error,
                     success: success
                 })
+                
+                }
+                
+                else { 
+                
+                var frag = "Plese fix the following errors:\n\n" + alert_msg;
+                
+                alert(frag);
+	                
+                }
             });
         }
     })
