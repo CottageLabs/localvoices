@@ -2,12 +2,27 @@ jQuery(document).ready(function($) {
 	//Google Map -------------------------------------------------------------//
 
 	function initialize() {
+	    var gm = google.maps;
 		var markers = [];
 		map = new google.maps.Map(document.getElementById('map-canvas'), {
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			center: new google.maps.LatLng(55.712608, -4.532135),
 			zoom: 7
 		});
+		
+		var oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true });
+		
+		var iw = new gm.InfoWindow();
+		oms.addListener('click', function(marker, event) {
+			iw.setContent(marker.desc);
+			iw.open(map, marker);
+		});
+		
+		oms.addListener('spiderfy', function(markers) {
+			iw.close();
+		});
+		
+		
 		//var defaultBounds = new google.maps.LatLngBounds(
 		//new google.maps.LatLng(59.2995517, -9.6240234), new google.maps.LatLng(55.6031782, -0.0878906));
 		//map.fitBounds(defaultBounds);
@@ -72,6 +87,7 @@ jQuery(document).ready(function($) {
 		//Call function to get singer data
 		var params = {}
 		params["types"] = 'singer'
+		params["size"] = 99999999
 		params["max"] = false // will be set and will be true or false
 		params["error"] = function() {
 			alert("error calling search API")
@@ -111,6 +127,7 @@ jQuery(document).ready(function($) {
 				});
 				//add marker array to stack
 				singerStack.push(marker);
+				oms.addMarker(marker); 
 			}}
 			//load singer markers
 			var mcOptions = {
@@ -143,6 +160,7 @@ jQuery(document).ready(function($) {
 		//Call function to get singer data
 		var params = {}
 		params["types"] = 'version'
+		params["size"] = 99999999
 		params["max"] = false // will be set and will be true or false
 		params["error"] = function() {
 			alert("error calling search API")
@@ -174,6 +192,7 @@ jQuery(document).ready(function($) {
 				
 				//add marker array to stack
 				versionStack.push(marker);
+				oms.addMarker(marker); 
 			}
 			
 			//Add click event to singers names to open info window
@@ -183,8 +202,8 @@ jQuery(document).ready(function($) {
 			//load singer markers
 			var v_mcOptions = {
 				gridSize: 50,
-				maxZoom: 8,
-				zoomOnClick: false
+				maxZoom: 6,
+				zoomOnClick: true
 			};
 			var version_toggle = (document.getElementById('song-pins-check'));
 			var v_clusterer = new MarkerClusterer(map, versionStack, v_mcOptions);
@@ -371,6 +390,80 @@ jQuery(document).ready(function($) {
 	$(document).on('click', '.version', function(event) {
 		showVersion(event)
 	});
+	
+	$("#do_search_advanced").click(function(event) {
+        event.preventDefault();
+        var form = $("form[name=search_example]")
+        
+        // extract the search parameters from the form
+        var top_left_lat = form.find("input[name=top_left_lat]").val()
+        var top_left_lon = form.find("input[name=top_left_lon]").val()
+        var bottom_right_lat = form.find("input[name=bottom_right_lat]").val()
+        var bottom_right_lon = form.find("input[name=bottom_right_lon]").val()
+        var place = form.find("input[name=place]").val()
+        var q = form.find("input[name=q]").val()
+        var types = form.find("input[name=types]").val()
+        var from = form.find("input[name=from]").val()
+        var size = form.find("input[name=size]").val()
+        var all_info = form.find("input[name=all_info]").is(":checked")
+        
+        // build the parameters for the search API call
+        var params = {}
+        if (top_left_lat) { params["top_left_lat"] = top_left_lat }
+        if (top_left_lon) { params["top_left_lon"] = top_left_lon }
+        if (bottom_right_lat) { params["bottom_right_lat"] = bottom_right_lat }
+        if (bottom_right_lon) { params["bottom_right_lon"] = bottom_right_lon }
+        if (place) { params["place"] = place }
+        if (q) { params["q"] = q }
+        if (types) { params["types"] = types }
+        if (from) { params["from"] = from }
+        if (size) { params["size"] = size }
+        params["max"] = all_info // will be set and will be true or false
+        
+        // add our callback functions
+        params["success"] = function(data) {
+            var frag = "<ul>"
+            if (data.results) {
+                for (var i = 0; i < data.results.length; i++) {
+                    var res = data.results[i]
+                    var type = res._type
+                    var title = res.title
+                    var id = res.id
+                    var canonical_name = res.canonical_name
+                    
+                    var min_max = "minimal record"
+                    if (res.lv_id) {
+                        min_max = "full record"
+                    }
+                    
+                    frag += "<li class='" + type + "' id='" + id + "' >"
+                    if (title) {
+                        frag += title
+                    } else if (canonical_name) {
+                        frag += canonical_name
+                    }
+                    frag += " (" + type + ")</li>"
+                }
+            }
+            frag += "</ul>"
+            
+            $("#search_example_results").html(frag)
+        }
+        
+        params["error"] = function() {
+            alert("error calling search API")
+        }
+        
+        // do the search (which will in turn call the callback functions)
+        doSearch(params)
+        
+	$(document).on('click', '.singer', function(event) { showSinger(event) });
+	$(document).on('click', '.song', function(event) { showSong(event) });
+	$(document).on('click', '.version', function(event) {
+		showVersion(event)
+	});
+
+    })
 }); //end on page load
 //------------------------------------------------------------------------------
 //function to show singer pop over
@@ -719,3 +812,4 @@ function renderVersion(song_data) {
 	frag += "</div></div>"
 	return frag
 }
+
