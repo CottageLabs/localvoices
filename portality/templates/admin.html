@@ -1,0 +1,164 @@
+{% extends "admin-base.html" %}
+
+{% block content %}
+
+<div class="hero-unit">
+    <h1>Local Voices</h1>
+    <p>Square Mile Songs - Admin panel</p>
+    <span class="home_link"> <a href="/">Back to site</a> 
+</div>
+
+<h2>Search</h2>
+<div class="row-fluid">
+    <div class="span6">
+    <p> Search for the IDs of items you wish to view, update link or delete. </p> 
+        <form name="search_example">
+
+            Place <input name="place" value="" placeholder="Enter a place, like 'Edinburgh'"><br>
+            Query String <input name="q" value="" placeholder="Enter some free-text"><br>
+            Types <input name="types" value="song,singer,version"><br>
+            <button id="do_search_example" class="btn btn-info">Search!</button>
+        </form>
+    </div>
+    <div class="span6">
+        <div id="search_example_results"></div>
+    </div>
+</div>
+<hr/>
+<h2>View</h2>
+
+<div class="row-fluid">
+    <div class="span6">
+    <p>To view a Singer, Version or Song, first find their database ID using a search.  Select the record type and enter the ID.  Click Retrieve</p>
+        <form name="retrieve_example">
+            <select name="retrieve_type">
+                <option value="singer">singer</option>
+                <option value="song">song</option>
+            </select>
+            <input name="id" value="" placeholder="opaque id of singer/song">
+            <button id="do_retrieve_example" class="btn btn-info">Retrieve!</button>
+        </form>
+    </div>
+    
+    <div class="span6">
+        <div id="retrieve_example_result"></div>
+    </div>
+</div>
+
+
+<hr/>   
+<h2>Create</h2>
+
+<div class="row-fluid">
+    <div class="span6">
+    <p>To add a Singer, Version or Song, first search for and click on the map to select a location, then select type of record to add. Click Create. </p>
+    <input id="pac-input" class="controls" type="text" placeholder="Find a Location"> 
+<div id="admin-map"> </div>
+        <form name="create_example">
+        <input type="input" name="current_lon" id ="current_lon"  value="" style="width: 50px"> 
+         <input type="input" name="current_lat" id="current_lat"  value="" style="width: 50px"> 
+
+            <select name="create_type">
+                <option value="singer">singer</option>
+                <option value="song">song</option>
+                <option value="version">version</option>
+            </select>
+            <button id="do_create_example" class="btn btn-info">Create!</button>
+        </form>
+    </div>
+    
+    <div class="span6">
+        <div id="create_example_form"></div>
+    </div>
+</div>
+
+<hr/>
+<h2>Update</h2>
+
+<div class="row-fluid">
+    <div class="span6">
+    <p>To update a Singer, Version or Song, first find their database ID using a search.  Select the record type and enter the ID.  Click update. A form will appear showing the song/version or singers current listing.  Edit as required and click update.</p>
+        <form name="update_example">
+            <select name="update_type">
+                <option value="singer">singer</option>
+                <option value="song">song</option>
+                <option value="version">version</option>
+            </select>
+            <input name="id" value="" placeholder="opaque id of singer/song/version">
+            <button id="do_update_example" class="btn btn-info">Update!</button>
+        </form>
+    </div>
+    
+    <div class="span6">
+        <div id="update_example_form"></div>
+    </div>
+</div>
+
+<hr/>
+<h2>Delete</h2>
+
+<div class="row-fluid">
+    <div class="span12">
+    <p>To delete a Singer, Version or Song, first find their database ID using a search.  Select the record type and enter the ID.  Click delete.</p>
+        <form name="delete_example">
+            <select name="delete_type">
+                <option value="singer">singer</option>
+                <option value="song">song</option>
+                <option value="version">version</option>
+            </select>
+            <input name="id" value="" placeholder="opaque id of singer/song/version">
+            <button id="do_delete_example" class="btn btn-info">Delete!</button>
+        </form>
+    </div>
+</div>
+
+<hr/>
+<h2>Link</h2>
+
+<div class="row-fluid">
+    <div class="span6">
+    <p>To view and edit a Singer, Version or Songs links and relations.  You will require the database ID for each item.  Find the database ID using a search.  Select the record type and enter the ID.  Click Link.  A form will appear showing the song/version or singers current links.  Edit as required and click Link.</p>
+        <form name="link_example">
+            <select name="link_type">
+                <option value="singer">singer</option>
+                <option value="song">song</option>
+                <option value="version">version</option>
+            </select>
+            <input name="id" value="" placeholder="opaque id of singer/song/version">
+            <button id="do_link_example" class="btn btn-info">Link!</button>
+        </form>
+    </div>
+    
+    <div class="span6">
+        <div id="link_example_form"></div>
+    </div>
+</div>
+<hr/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+      
+{% block content %}
+  <div id="main">
+  
+   <input name="lat" id="site_lat" value=""  type="hidden">
+   <input name="lng" id="site_lng" value=""  type="hidden">
+   
+   
+		 <div id="search">
+        <form name="search_example">
+
+            <input name="q" value="" placeholder="Enter some free-text">
+
+            <button id="do_search" class="btn btn-info">Search!</button>
+       <!--     <button id="data_test" class="btn btn-info">Data Test</button> -->
+        </form>
+        
+    </div>
+
+
+<input id="pac-input" class="controls" type="text" placeholder="Find a Location"> 
+
+<label id="singer-pins-check-container"> <input id="singer-pins-check" class="controls" type="checkbox" checked="true"> Show Singers </label>
+
+<label id="song-pins-check-container"><input id="song-pins-check" class="controls" type="checkbox" checked="true">  Show Songs </label>
+
+    	<div id="map-canvas"></div>
+		
+
+<! -- pop over singers ----------------------------->	
+	
+    <div id="pop-over-singers" class="popovers">
+    <a class="close">close</a>
+	    
+  <h2> Singers A-Z </h2>
+        <form name="list_singers">
+            Letter <select name="letter" id="letter">
+                <option value="0">all</option>
+                <option value="a">a</option>
+                <option value="b">b</option>
+                <option value="c">c</option>
+                <option value="d">d</option>
+                <option value="e">e</option>
+                <option value="f">f</option>
+                <option value="g">g</option>
+                <option value="h">h</option>
+                <option value="i">i</option>
+                <option value="j">j</option>
+                <option value="k">k</option>
+                <option value="l">l</option>
+                <option value="m">m</option>
+                <option value="n">n</option>
+                <option value="o">o</option>
+                <option value="p">p</option>
+                <option value="q">q</option>
+                <option value="r">r</option>
+                <option value="s">s</option>
+                <option value="t">t</option>
+                <option value="u">u</option>
+                <option value="v">v</option>
+                <option value="w">w</option>
+                <option value="x">x</option>
+                <option value="y">y</option>
+                <option value="z">z</option>
+            </select><br>
+       </form>
+
+
+        <div id="list_singer_results"></div>
+
+
+  </div> 
+  <! -- end pop over singers ----------------------------->
+  
+  <! -- pop over songs ----------------------------------->
+  
+      <div id="pop-over-songs" class="popovers">
+    <a class="close">close</a>
+	    
+  <h2> Songs A-Z </h2>
+        <form name="list_songs">
+            Letter <select name="letter_songs" id="letter_songs">
+                <option value="0">all</option>
+                <option value="a">a</option>
+                <option value="b">b</option>
+                <option value="c">c</option>
+                <option value="d">d</option>
+                <option value="e">e</option>
+                <option value="f">f</option>
+                <option value="g">g</option>
+                <option value="h">h</option>
+                <option value="i">i</option>
+                <option value="j">j</option>
+                <option value="k">k</option>
+                <option value="l">l</option>
+                <option value="m">m</option>
+                <option value="n">n</option>
+                <option value="o">o</option>
+                <option value="p">p</option>
+                <option value="q">q</option>
+                <option value="r">r</option>
+                <option value="s">s</option>
+                <option value="t">t</option>
+                <option value="u">u</option>
+                <option value="v">v</option>
+                <option value="w">w</option>
+                <option value="x">x</option>
+                <option value="y">y</option>
+                <option value="z">z</option>
+            </select><br>
+       </form>
+
+
+        <div id="list_songs_results"></div>
+
+
+  </div> 
+  <!-- end pop over songs ----------------------->
+  
+   <!-- Pop over Search results  ----------------------->
+  
+        <div id="pop-over-search" class="popovers">
+			<a class="close">close</a>
+	    
+			<h2> Search Results </h2>
+        
+        <div id="search_results"></div>
+
+  </div> 
+
+   <div id="form_advanced_search" class="popovers">
+ <a class="advancedclose">close</a>
+ <div class="row-fluid">
+    <div class="span6">
+        <form name="search_example">
+            Top Left Lat <input name="top_left_lat" value="60"><br>
+            Top Left Lon <input name="top_left_lon" value="-5"><br>
+            Bottom Right Lat <input name="bottom_right_lat" value="50"><br>
+            Bottom Right Lon <input name="bottom_right_lon" value="0"><br>
+            
+            Place <input name="place" value="" placeholder="Enter a place, like 'Edinburgh'"><br>
+            Query String <input name="q" value="" placeholder="Enter some free-text"><br>
+            Types <input name="types" value="song,singer,version"><br>
+            Limit results to: <input name="size" value="10"><br>
+
+            <button id="do_search_advanced" class="btn btn-info">Search!</button>
+        </form>
+    </div>
+    <div class="span6">
+        <div id="search_example_results"></div>
+    </div>
+</div>
+
+  </div> 
+  <!-- Pop over singer - single ----------------------->
+  
+        <div id="pop-over-singer" class="popovers">
+			<a class="close">close</a>
+        
+        <div id="singer-profile"></div>
+
+  </div> 
+  <!-- Pop over songs- single ----------------------->  
+   
+    <div id="pop-over-song-detail" class="popovers">
+			<a class="close">close</a>
+        
+        <div id="song-detail"></div>
+
+  </div> 
+
+  <!-- Second pop over songs- single ----------------------->  
+   
+    <div id="sub-pop-over-song-detail" class="popovers">
+			<a class="close">close</a>
+        
+        <div id="song-detail-2"></div>
+
+  </div> 
+  
+
+    </div>
+    
+    
+{% endblock %}

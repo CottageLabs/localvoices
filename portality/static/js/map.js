@@ -18,7 +18,6 @@ jQuery(document).ready(function($) {
         var types = form.find("input[name=types]").val()
         var from = form.find("input[name=from]").val()
         var size = form.find("input[name=size]").val()
-        var all_info = form.find("input[name=all_info]").is(":checked")
         
         // build the parameters for the search API call
         var params = {}
@@ -31,7 +30,6 @@ jQuery(document).ready(function($) {
         if (types) { params["types"] = types }
         if (from) { params["from"] = from }
         if (size) { params["size"] = size }
-        params["max"] = all_info // will be set and will be true or false
         
         // add our callback functions
         params["success"] = function(data) {
@@ -43,12 +41,6 @@ jQuery(document).ready(function($) {
                     var title = res.title
                     var id = res.id
                     var canonical_name = res.canonical_name
-                    var loc = res.canonical_location
-                    
-                    var min_max = "minimal record"
-                    if (res.lv_id) {
-                        min_max = "full record"
-                    }
                     
                     frag += "<li>"
                     if (title) {
@@ -56,7 +48,7 @@ jQuery(document).ready(function($) {
                     } else if (canonical_name) {
                         frag += canonical_name
                     }
-                    frag += " (" + type + ") [" + loc.lat + ", " + loc.lon + "] - " + id + " [" + min_max + "]</li>"
+                    frag += " (" + type + ") - " + id + "</li>"
                 }
             }
             frag += "</ul>"
@@ -130,7 +122,6 @@ jQuery(document).ready(function($) {
         var letter = form.find("select[name=letter]").val()
         var from = form.find("input[name=from]").val()
         var size = form.find("input[name=size]").val()
-        var type = form.find("select[name=list_type]").val()
         
         // build the parameters for the list call
         var params = {}
@@ -142,20 +133,15 @@ jQuery(document).ready(function($) {
         if (from) {params["from"] = from}
         if (size) {params["size"] = size}
         
-        var count_of = "songs"
-        if (type === "song") {
-            count_of = "versions"
-        }
-        
         params["success"] = function(data) {
             var frag = "<ul>"
             if (data.results) {
                 for (var i = 0; i < data.results.length; i++) {
                     var res = data.results[i]
-                    var name = res.canonical_name ? res.canonical_name : res.title
+                    var name = res.canonical_name
                     var count = res.version_count
                     var id = res.id
-                    frag += "<li><strong>" + name + "</strong> (" + count + " " + count_of + ") - " + id + "</li>"
+                    frag += "<li><strong>" + name + "</strong> (" + count + " songs) - " + id + "</li>"
                 }
             }
             frag += "</ul>"
@@ -167,11 +153,7 @@ jQuery(document).ready(function($) {
         }
         
         // do the list (which will in turn call the callback functions)
-        if (type === "singer") {
-            listSingers(params)
-        } else if (type === "song") {
-            listSongs(params)
-        }
+        listSingers(params)
     });
     
     //////////////////////////////////////////////////////////
@@ -237,20 +219,20 @@ jQuery(document).ready(function($) {
         var id = form.find("input[name=id]").val()
         
         if (type === "singer") {
-            function retrieve_singer_error() { alert("error retrieving") }
-            function retrieve_singer_success(data) {
+            function retrieve_error() { alert("error retrieving") }
+            function retrieve_success(data) {
                 var update_form = renderSingerForm({singer: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_singer_error() { alert("error saving") }
-                function save_singer_success(data) { alert("saved id " + id) }
+                function save_error() { alert("error saving") }
+                function save_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_singer]").click(function(event) {
                     event.preventDefault()
                     saveSingerFromForm({
                         form_selector: "form[name=singer_form]",
-                        error: save_singer_error,
-                        success: save_singer_success
+                        error: save_error,
+                        success: save_success
                     })
                 });
             }
@@ -258,25 +240,25 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "singer",
                 id: id,
-                error: retrieve_singer_error,
-                success: retrieve_singer_success
+                error: retrieve_error,
+                success: retrieve_success
             })
             
         } else if (type === "song") {
-            function retrieve_song_error() { alert("error retrieving") }
-            function retrieve_song_success(data) {
+            function retrieve_error() { alert("error retrieving") }
+            function retrieve_success(data) {
                 var update_form = renderSongForm({song: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_song_error() { alert("error saving") }
-                function save_song_success(data) { alert("saved id " + id) }
+                function save_error() { alert("error saving") }
+                function save_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_song]").click(function(event) {
                     event.preventDefault()
                     saveSongFromForm({
                         form_selector: "form[name=song_form]",
-                        error: save_song_error,
-                        success: save_song_success
+                        error: save_error,
+                        success: save_success
                     })
                 });
             }
@@ -284,25 +266,25 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "song",
                 id: id,
-                error: retrieve_song_error,
-                success: retrieve_song_success
+                error: retrieve_error,
+                success: retrieve_success
             })
             
         } else if (type === "version") {
-            function retrieve_version_error() { alert("error retrieving") }
-            function retrieve_version_success(data) {
+            function retrieve_error() { alert("error retrieving") }
+            function retrieve_success(data) {
                 var update_form = renderVersionForm({version: data})
                 $("#update_example_form").html(update_form)
                 
-                function save_version_error() { alert("error saving") }
-                function save_version_success(data) { alert("saved id " + id) }
+                function save_error() { alert("error saving") }
+                function save_success(data) { alert("saved id " + id) }
                 
                 $("button[name=submit_version]").click(function(event) {
                     event.preventDefault()
                     saveVersionFromForm({
                         form_selector: "form[name=version_form]",
-                        error: save_version_error,
-                        success: save_version_success
+                        error: save_error,
+                        success: save_success
                     })
                 });
             }
@@ -310,8 +292,8 @@ jQuery(document).ready(function($) {
             doRetrieve({
                 type: "version",
                 id: id,
-                error: retrieve_version_error,
-                success: retrieve_version_success
+                error: retrieve_error,
+                success: retrieve_success
             })
         }
     })

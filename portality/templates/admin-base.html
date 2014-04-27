@@ -4,8 +4,11 @@
 {% include 'head.html' %}
 
 <body>
+<div class="container">
 
-{% include 'header.html' %}
+    <div class="content">
+        <div class="row-fluid">
+            <div class="span12">
 
                 {% block content %}{% endblock %}
          
@@ -13,6 +16,12 @@
     {% include 'footer.html' %}
     {% include '_js_includes.html' %}
 
+          </div>
+        </div>
+    </div> <!-- /content -->
+
+
 </div> <!-- /container -->
+
 </body>
 </html>
