@@ -461,37 +461,97 @@ function _formRow(params) {
     frag += "</div></div>"
     return frag
 }
+   Array.prototype.remove = function(value) {
+       this.splice(this.indexOf(value), 1);
+       return true;
+};
+
 
 function _locationEntry(params) {
     // extract the parameters
     params = params ? params : {}
-    var locs = params.locations
+    var locs = []
+    if (params.locations) {
+	    locs = params.locations
+    }
     
     // FIXME: only displaying the first location
     var loc = {location: "", lat : "", lon: "", relation: ""}
+    var buffer = 0;
+    var unused = ["native_area", "significant", "main"]
+    
     if (locs) {
-        if (locs.length > 0) {
-            loc = locs[0]
-        }
-    }
+          
+    
+    var frag =""
+    for(var i=0;i<locs.length;i++) {
+	    
+	    loc = locs[i]
+
     
     var lat = loc.lat ? loc.lat : ""
     var lon = loc.lon ? loc.lon : ""
     var place = loc.place ? loc.place : ""
+    var relation = loc.relation ? loc.relation : ""
     
-    var native_selected = loc.relation === "native_area" ? "selected='selected'" : ""
-    var significant_selected = loc.relation === "significant" ? "selected='selected'" : ""
-    var main_selected = loc.relation === "main" ? "selected='selected'" : ""
     
-    var frag = "<select name='relation' style='width: 200px'>"
-    frag += "<option value='native_area' " + native_selected + ">Native Area</option>"
-    frag += "<option value='significant' " + significant_selected + ">Significant Location</option>"
-    frag += "<option value='main' " + main_selected + ">Main Location in a Song</option></select>"
+    if ( relation == "native_area") {
+      frag += "<span> Native Area:</span> <input type='hidden' name='relation" + "_" + relation + "' style='width: 200px' value='native_area'/ >"
     
-    frag += "&nbsp;&nbsp;Lat <input type='text' name='lat' placeholder='latitude' value='" + lat + "' style='width: 50px'>"
-    frag += "&nbsp;&nbsp;Lon <input type='text' name='lon' placeholder='longitude' value='" + lon + "' style='width: 50px'><br>"
-    frag += "Place Name <input type='text' name='place' placeholder='placename' value='" + place + "' style='width: 150px'>"
-    return _formRow({label: "Location", field: frag})
+    }
+    if ( relation == "significant") {
+      frag += "<span> Significant Area:</span> <input type='hidden' name='relation" + "_" + relation + "' style='width: 200px' value='significant'/>"
+      }
+      
+    if ( relation == "main") {
+      frag += "<span> Related Area:</span> <input type='hidden' name='relation" + "_" + relation + "' style='width: 200px' value='main'/>"
+      }
+
+     
+    frag +="&nbsp;&nbsp;Lat <input type='text' name='lat" + "_" + relation + "' placeholder='latitude' value='" + lat +  "' style='width: 50px'>"
+    frag += "&nbsp;&nbsp;Lon <input type='text' name='lon" + "_" + relation + "' placeholder='longitude' value='" + lon + "' style='width: 50px'><br>"
+    frag += "Place Name <input type='text' name='place" + "_" + relation + "' placeholder='placename' value='" + place + "' style='width: 150px'> <br>"
+
+    
+    buffer ++;
+    
+    unused.remove(relation);   
+    }
+    
+ }
+   var i = 0;
+   while(buffer < 3) {
+    
+   unused[i]
+    if ( unused[i] == "native_area") {
+      frag += "<span> Native Area:</span> <input type='hidden' name='relation' style='width: 200px' value='native_area'/ >"
+    
+    }
+    if ( unused[i] == "significant") {
+      frag += "<span> Significant Area:</span> <input type='hidden' name='relation' style='width: 200px' value='significant'/>"
+      }
+      
+    if ( unused[i] == "main") {
+      frag += "<span> Related Area:</span> <input type='hidden' name='relation' style='width: 200px' value='main'/>"
+      }
+    
+
+     
+    frag +="&nbsp;&nbsp;Lat <input type='text' name='lat" + "_" + unused[i] + "' placeholder='latitude' value='' style='width: 50px'>"
+    frag += "&nbsp;&nbsp;Lon <input type='text' name='lon" + "_" + unused[i] + "' placeholder='longitude' value='' style='width: 50px'><br>"
+    frag += "Place Name <input type='text' name='place" + "_" + unused[i] + "' placeholder='placename' value='' style='width: 150px'> <br>"
+
+    
+    buffer ++;
+    i++;
+   }
+   
+  
+    
+
+    return _formRow({label: "locations", field: frag})
+    
+    
 }
 
 function renderSingerForm(params) {
@@ -515,7 +575,10 @@ function renderSingerForm(params) {
             groups = singer.groups.join(", ")
         }
         var gender = singer.gender
+        
         var locs = singer.location // FIXME: there can be multiple locs, but we only support one in this version of the form
+        
+        
         var born = singer.born
         var died = singer.died
         var bio = singer.biography
@@ -717,10 +780,25 @@ function parseSingerFromForm(params) {
     var aka = form.find("input[name=aka]").val()
     var groups = form.find("input[name=groups]").val()
     var gender = form.find("input[name=gender]:checked").val()
-    var location_relation = form.find("select[name=relation]").val()
-    var lat = form.find("input[name=lat]").val()
-    var lon = form.find("input[name=lon]").val()
-    var place = form.find("input[name=place]").val()
+   //Add diff location type here
+    var location_relation_native_area = form.find("select[name=relation_native_area]").val()
+    var lat_native_area = form.find("input[name=lat_native_area]").val()
+    var lon_native_area = form.find("input[name=lon_native_area]").val()
+    var place_native_area = form.find("input[name=place_native_area]").val()
+    
+   //Add diff location type here
+    var location_relation_significant = form.find("select[name=relation_significant]").val()
+    var lat_significant = form.find("input[name=lat_significant]").val()
+    var lon_significant = form.find("input[name=lon_significant]").val()
+    var place_significant = form.find("input[name=place_significant]").val()
+    
+   //Add diff location type here
+    var location_relation_main = form.find("select[name=relation_main]").val()
+    var lat_main = form.find("input[name=lat_main]").val()
+    var lon_main = form.find("input[name=lon_main]").val()
+    var place_main = form.find("input[name=place_main]").val()
+    
+    
     var born = form.find("input[name=born]").val()
     var died = form.find("input[name=died]").val()
     var bio = form.find("textarea[name=bio]").val()
@@ -755,16 +833,52 @@ function parseSingerFromForm(params) {
         singer["groups"] = gs
     }
     if (gender) { singer["gender"] = gender }
-    if (lat || lon || place) {
+
+
+    // repeat for each location type
+    var locs = []
+    
+    if (lat_native_area || lon_native_area || place_native_area) {
         var loc = {}
-        if (location_relation) {loc["relation"] = location_relation}
-        if (lat && lon) {
-            loc["lat"] = lat
-            loc["lon"] = lon
+        if (location_relation_native_area) {loc["relation"] = location_relation_native_area}
+        if (lat_native_area && lon_native_area) {
+            loc ["lat"] = lat_native_area
+            loc ["lon"] = lon_native_area
         }
-        if (place) { loc["place"] = place }
-        singer["location"] = [loc]  // FIXME: we currently only allow one location per singer via this form
+        
+        if (place_native_area) { loc["place"] = place_native_area }
+        locs.push(loc);
     }
+    
+    if (lat_significant || lon_significant || place_significant) {
+        var loc = {}
+        if (location_relation_significant) {loc["relation"] = location_relation_significant}
+        if (lat_significant && lon_significant) {
+            loc ["lat"] = lat_significant
+            loc ["lon"] = lon_significant
+        }
+        
+        if (place_significant) { loc["place"] = place_significant }
+        locs.push(loc);
+    }
+
+
+if (lat_main || lon_main || place_main) {
+        var loc = {}
+        if (location_relation_main) {loc["relation"] = location_relation_main}
+        if (lat_main && lon_main) {
+            loc ["lat"] = lat_main
+            loc ["lon"] = lon_main
+        }
+        
+        if (place_main) { loc["place"] = place_main }
+        locs.push(loc);
+    }
+
+    
+    singer["location"] = locs // FIXME: we currently only allow one location per singer via this form
+    
+    
     if (born) { singer["born"] = born }
     if (died) { singer["died"] = died }
     if (bio) { singer["biography"] = bio }
@@ -802,9 +916,25 @@ function parseSongFromForm(params) {
     var lvid = form.find("input[name=lvid]").val()
     var title = form.find("input[name=title]").val()
     var summary = form.find("textarea[name=summary]").val()
-    var location_relation = form.find("select[name=relation]").val()
-    var lat = form.find("input[name=lat]").val()
-    var lon = form.find("input[name=lon]").val()
+
+//Add diff location type here
+    var location_relation_native_area = form.find("select[name=relation_native_area]").val()
+    var lat_native_area = form.find("input[name=lat_native_area]").val()
+    var lon_native_area = form.find("input[name=lon_native_area]").val()
+    var place_native_area = form.find("input[name=place_native_area]").val()
+    
+   //Add diff location type here
+    var location_relation_significant = form.find("select[name=relation_significant]").val()
+    var lat_significant = form.find("input[name=lat_significant]").val()
+    var lon_significant = form.find("input[name=lon_significant]").val()
+    var place_significant = form.find("input[name=place_significant]").val()
+    
+   //Add diff location type here
+    var location_relation_main = form.find("select[name=relation_main]").val()
+    var lat_main = form.find("input[name=lat_main]").val()
+    var lon_main = form.find("input[name=lon_main]").val()
+    var place_main = form.find("input[name=place_main]").val()
+
     var place = form.find("input[name=place]").val()
     var from = form.find("input[name=from]").val()
     var to = form.find("input[name=to]").val()
@@ -816,16 +946,50 @@ function parseSongFromForm(params) {
     if (lvid) { song["lv_id"] = lvid }
     if (title) { song["title"] = title }
     if (summary) { song["summary"] = summary }
-    if (lat || lon || place) {
+    
+    
+        // repeat for each location type
+    var locs = []
+    
+    if (lat_native_area || lon_native_area || place_native_area) {
         var loc = {}
-        if (location_relation) {loc["relation"] = location_relation}
-        if (lat && lon) {
-            loc["lat"] = lat
-            loc["lon"] = lon
+        if (location_relation_native_area) {loc["relation"] = location_relation_native_area}
+        if (lat_native_area && lon_native_area) {
+            loc ["lat"] = lat_native_area
+            loc ["lon"] = lon_native_area
         }
-        if (place) { loc["place"] = place }
-        song["location"] = [loc]  // FIXME: we currently only allow one location per singer via this form
+        
+        if (place_native_area) { loc["place"] = place_native_area }
+        locs.push(loc);
     }
+    
+    if (lat_significant || lon_significant || place_significant) {
+        var loc = {}
+        if (location_relation_significant) {loc["relation"] = location_relation_significant}
+        if (lat_significant && lon_significant) {
+            loc ["lat"] = lat_significant
+            loc ["lon"] = lon_significant
+        }
+        
+        if (place_significant) { loc["place"] = place_significant }
+        locs.push(loc);
+    }
+
+
+        if (lat_main || lon_main || place_main) {
+        var loc = {}
+        if (location_relation_main) {loc["relation"] = location_relation_main}
+        if (lat_main && lon_main) {
+            loc ["lat"] = lat_main
+            loc ["lon"] = lon_main
+        }
+        
+        if (place_main) { loc["place"] = place_main }
+        locs.push(loc);
+    }
+
+        song["location"] = locs  // FIXME: we currently only allow one location per singer via this form
+    
     if (from || to) {
         song["time_period"] = {}
         if (from) { song.time_period["from"] = from }
@@ -870,11 +1034,26 @@ function parseVersionFromForm(params) {
     var collector = form.find("input[name=collector]").val()
     var source = form.find("textarea[name=source]").val()
     var collected_date = form.find("input[name=collected_date]").val()
-    var location_relation = form.find("select[name=relation]").val()
-    var lat = form.find("input[name=lat]").val()
-    var lon = form.find("input[name=lon]").val()
-    var place = form.find("input[name=place]").val()
-    var roud = form.find("input[name=roud]").val()
+    //Add diff location type here
+    var location_relation_native_area = form.find("select[name=relation_native_area]").val()
+    var lat_native_area = form.find("input[name=lat_native_area]").val()
+    var lon_native_area = form.find("input[name=lon_native_area]").val()
+    var place_native_area = form.find("input[name=place_native_area]").val()
+    
+   //Add diff location type here
+    var location_relation_significant = form.find("select[name=relation_significant]").val()
+    var lat_significant = form.find("input[name=lat_significant]").val()
+    var lon_significant = form.find("input[name=lon_significant]").val()
+    var place_significant = form.find("input[name=place_significant]").val()
+    
+   //Add diff location type here
+    var location_relation_main = form.find("select[name=relation_main]").val()
+    var lat_main = form.find("input[name=lat_main]").val()
+    var lon_main = form.find("input[name=lon_main]").val()
+    var place_main = form.find("input[name=place_main]").val()
+    
+    
+       var roud = form.find("input[name=roud]").val()
     var greig_duncan = form.find("input[name=greig_duncan]").val()
     var child = form.find("input[name=child]").val()
     var laws = form.find("input[name=laws]").val()
@@ -916,16 +1095,48 @@ function parseVersionFromForm(params) {
     if (collector) { version["collector"] = collector }
     if (source) { version["source"] = source }
     if (collected_date) { version["collected_date"] = collected_date }
-    if (lat || lon || place) {
+    // repeat for each location type
+    var locs = []
+    
+    if (lat_native_area || lon_native_area || place_native_area) {
         var loc = {}
-        if (location_relation) {loc["relation"] = location_relation}
-        if (lat && lon) {
-            loc["lat"] = lat
-            loc["lon"] = lon
+        if (location_relation_native_area) {loc["relation"] = location_relation_native_area}
+        if (lat_native_area && lon_native_area) {
+            loc ["lat"] = lat_native_area
+            loc ["lon"] = lon_native_area
         }
-        if (place) { loc["place"] = place }
-        version["location"] = [loc]  // FIXME: we currently only allow one location per version via this form
+        
+        if (place_native_area) { loc["place"] = place_native_area }
+        locs.push(loc);
     }
+    
+    if (lat_significant || lon_significant || place_significant) {
+        var loc = {}
+        if (location_relation_significant) {loc["relation"] = location_relation_significant}
+        if (lat_significant && lon_significant) {
+            loc ["lat"] = lat_significant
+            loc ["lon"] = lon_significant
+        }
+        
+        if (place_significant) { loc["place"] = place_significant }
+        locs.push(loc);
+    }
+
+
+     if (lat_main || lon_main || place_main) {
+        var loc = {}
+        if (location_relation_main) {loc["relation"] = location_relation_main}
+        if (lat_main && lon_main) {
+            loc ["lat"] = lat_main
+            loc ["lon"] = lon_main
+        }
+        
+        if (place_main) { loc["place"] = place_main }
+        locs.push(loc);
+    }
+
+        version["location"] = locs  // FIXME: we currently only allow one location per version via this form
+    
     
     var refs = []
     if (roud) { refs.push({"type" : "roud", "number" : roud}) }

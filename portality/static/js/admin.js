@@ -284,8 +284,8 @@ jQuery(document).ready(function($) {
             $("#create_example_form").html(create_form)
             var lng = $("#current_lon").val();
              var lat = $("#current_lat").val();
-            $("input[name=lat]").val(lat);
-            $("input[name=lon]").val(lng);
+            $("input[name=lat_native_area]").val(lat);
+            $("input[name=lon_native_area]").val(lng);
             
             $("button[name=submit_singer]").click(function(event) {
                 event.preventDefault()
@@ -309,14 +309,14 @@ jQuery(document).ready(function($) {
 	              alert_msg += "Singer First Name is a required value. \n"
               }
 
-               var test4 = submit_form.find("input[name=lat]").val()
+               var test4 = submit_form.find("input[name=lat_native_area]").val()
                 if ( !test4)  {  
-	              alert_msg += "Latitude is a required value. \n"
+	              alert_msg += "Native Area Latitude is a required value. \n"
               }
               
-               var test5 = submit_form.find("input[name=lon]").val()
+               var test5 = submit_form.find("input[name=lon_native_area]").val()
                 if ( !test5)  {  
-	              alert_msg += "Latitude is a required value. \n"
+	              alert_msg += "Native Area Londitude is a required value. \n"
               }
 
            
@@ -347,8 +347,8 @@ jQuery(document).ready(function($) {
             $("#create_example_form").html(create_form)
              var lng = $("#current_lon").val();
              var lat = $("#current_lat").val();
-            $("input[name=lat]").val(lat);
-            $("input[name=lon]").val(lng);
+            $("input[name=lat_native_area]").val(lat);
+            $("input[name=lon_native_area]").val(lng);
             
             
             $("button[name=submit_song]").click(function(event) {
@@ -398,8 +398,8 @@ jQuery(document).ready(function($) {
             $("#create_example_form").html(create_form)
             var lng = $("#current_lon").val();
              var lat = $("#current_lat").val();
-            $("input[name=lat]").val(lat);
-            $("input[name=lon]").val(lng);
+            $("input[name=lat_native_area]").val(lat);
+            $("input[name=lon_native_area]").val(lng);
             $("button[name=submit_version]").click(function(event) {
                 event.preventDefault()
                 
